@@ -1,0 +1,64 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+	background-image: url('../images/background.jpg'); /* Path to your background image */
+    background-size: cover; /* Ensures the image covers the whole background */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+}
+.container {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 20px 40px 20px 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+	max-width: 500px;
+    width: 100%;
+}
+.container img {
+    width: 150px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+	
+}
+.container h1 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+.container input[type="text"], .container input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.container input[type="submit"] {
+    background: #57A0D2;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+	width: 30%; 
+    margin: 10px auto; 
+    display: block;
+}
+.container input[type="submit"]:hover {
+    background: #95C8D8;
+}
+.container a {
+    display: block;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+}
+.container a:hover {
+    text-decoration: underline;
+}
