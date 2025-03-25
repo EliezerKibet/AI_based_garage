@@ -1,61 +1,85 @@
-<h1>Garage Management System</h1>
-
-
-
-<h2>Description</h2>
-The garage management system allows the admin , customer and mechanics to operate better in the garage . Each role has its own role based authorizations.
-<br />
-
-
-<h2>Languages and Utilities Used</h2>
-
-- <b>C#</b> 
-- <b>HTML/CSS</b>
-
-<h2>Environments Used </h2>
-
-- <b>Microsoft Visual Studio 2022</b> (21H2)
-
-<h2>Program walk-through:</h2>
+<h1 align="center">Garage Management System</h1>
 
 <p align="center">
-Launch the utility: <br/>
-
- <img src="https://i.imgur.com/TMQQggn.jpg" height="80%" width="80%" alt="Project Screenshot"/>
-
-
-<br />
-<br />
-Select the disk:  <br/>
-<img src="https://i.imgur.com/tcTyMUE.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
-<br />
-<br />
-Enter the number of passes: <br/>
-<img src="https://i.imgur.com/nCIbXbg.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
-<br />
-<br />
-Confirm your selection:  <br/>
-<img src="https://i.imgur.com/cdFHBiU.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
-<br />
-<br />
-Wait for process to complete (may take some time):  <br/>
-<img src="https://i.imgur.com/JL945Ga.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
-<br />
-<br />
-Sanitization complete:  <br/>
-<img src="https://i.imgur.com/K71yaM2.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
-<br />
-<br />
-Observe the wiped disk:  <br/>
-<img src="https://i.imgur.com/AeZkvFQ.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+   <b>A streamlined system for managing garage operations efficiently.</b><br/>
+   Admins, customers, and mechanics have role-based authorizations for better functionality.
 </p>
 
-<!--
- ```diff
-- text in red
-+ text in green
-! text in orange
-# text in gray
-@@ text in purple (and bold)@@
-```
---!>
+---
+
+## Description
+The **Garage Management System** is designed to facilitate seamless interactions between **admins, customers, and mechanics** in a garage. Each role has specific **permissions and functionalities**, ensuring a structured workflow for booking, repairs, and management.
+
+---
+
+## Technologies Used
+
+- **C#** – Backend development  
+- **HTML/CSS** – Frontend design  
+
+## Development Environment
+
+- **Microsoft Visual Studio 2022 (21H2)**  
+
+---
+
+## Program Walkthrough
+
+### Admin Dashboard with Integrated AI Features
+The admin dashboard includes AI-powered features for enhanced management.
+
+<p align="center">
+   <img src="https://i.imgur.com/TMQQggn.jpg" height="60%" width="60%" alt="Admin Dashboard Screenshot"/>
+</p>
+
+---
+
+### Admin Login & Authentication
+The login credentials are seeded into the system, eliminating manual database entry.
+
+<p align="center">
+   <img src="https://i.imgur.com/A1zQUnO.jpg" height="60%" width="60%" alt="Admin Login Screenshot"/>
+</p>
+
+---
+
+### Calendar for Booking & Appointments
+A well-structured calendar ensures better scheduling and visibility of upcoming appointments.
+
+<p align="center">
+   <img src="https://i.imgur.com/dE75i95.jpg" height="60%" width="60%" alt="Calendar Screenshot"/>
+</p>
+
+---
+
+### Customer Dashboard
+Customers can book appointments, track services, and interact with the garage.
+
+<p align="center">
+   <img src="https://i.imgur.com/Djs8os7.jpg" height="60%" width="60%" alt="Customer Dashboard Screenshot"/>
+</p>
+
+---
+
+### Mechanic Dashboard
+Mechanics have access to assigned tasks, reports, and repair logs.
+
+<p align="center">
+   <img src="https://i.imgur.com/7g6WwBE.jpg" height="60%" width="60%" alt="Mechanic Dashboard Screenshot"/>
+</p>
+
+---
+
+## Features Overview
+
+- **Role-Based Authentication** (Admin, Customer, Mechanic)  
+- **AI-Integrated Admin Panel**  
+- **Automated Appointment Booking**  
+- **Live Calendar for Scheduling**  
+- **Comprehensive Service Management**  
+
+---
+
+### Feel free to contribute, suggest improvements, or report any issues.
+
+**GitHub Profile:** [EliezerKibet](https://github.com/EliezerKibet)
