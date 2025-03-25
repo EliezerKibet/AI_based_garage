@@ -20,7 +20,8 @@ The garage management system allows the admin , customer and mechanics to operat
 
 <p align="center">
 Launch the utility: <br/>
-<img src="https://i.imgur.com/62TgaWL.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+ <img src="https://raw.githubusercontent.com/EliezerKibet/AI_based_garage/main/images/your-image.png" height="80%" width="80%" alt="Your Image Description"/>
+
 <br />
 <br />
 Select the disk:  <br/>
