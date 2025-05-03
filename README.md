@@ -29,7 +29,7 @@ The **Garage Management System** is designed to facilitate seamless interactions
 The admin dashboard includes AI-powered features for enhanced management.
 
 <p align="center">
-  <img src="https://i.imgur.com/lhqX9iX.jpeg" width="60%" alt="Admin Dashboard Screenshot"/>
+  <img src="https://i.imgur.com/ieLPtcd.jpeg" width="60%" alt="Admin Dashboard Screenshot"/>
 </p>
 
 
@@ -40,7 +40,7 @@ The admin dashboard includes AI-powered features for enhanced management.
 The login credentials are seeded into the system, eliminating manual database entry.
 
 <p align="center">
-   <img src="https://i.imgur.com/A1zQUnO.jpg" height="60%" width="60%" alt="Admin Login Screenshot"/>
+   <img src="https://i.imgur.com/NofjI00.jpeg" height="60%" width="60%" alt="Admin Login Screenshot"/>
 </p>
 
 ---
@@ -49,7 +49,7 @@ The login credentials are seeded into the system, eliminating manual database en
 A well-structured calendar ensures better scheduling and visibility of upcoming appointments.
 
 <p align="center">
-   <img src="https://i.imgur.com/dE75i95.jpg" height="60%" width="60%" alt="Calendar Screenshot"/>
+   <img src="https://i.imgur.com/zzsivYu.jpeg" height="60%" width="60%" alt="Calendar Screenshot"/>
 </p>
 
 ---
@@ -58,7 +58,7 @@ A well-structured calendar ensures better scheduling and visibility of upcoming 
 Customers can book appointments, track services, and interact with the garage.
 
 <p align="center">
-   <img src="https://i.imgur.com/Djs8os7.jpg" height="60%" width="60%" alt="Customer Dashboard Screenshot"/>
+   <img src="https://i.imgur.com/co930U0.jpeg" height="60%" width="60%" alt="Customer Dashboard Screenshot"/>
 </p>
 
 ---
@@ -67,7 +67,7 @@ Customers can book appointments, track services, and interact with the garage.
 Mechanics have access to assigned tasks, reports, and repair logs.
 
 <p align="center">
-   <img src="https://i.imgur.com/7g6WwBE.jpg" height="60%" width="60%" alt="Mechanic Dashboard Screenshot"/>
+   <img src="https://i.imgur.com/OeGksVT.jpeg" height="60%" width="60%" alt="Mechanic Dashboard Screenshot"/>
 </p>
 
 ---
