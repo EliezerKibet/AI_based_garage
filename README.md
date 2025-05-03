@@ -29,8 +29,9 @@ The **Garage Management System** is designed to facilitate seamless interactions
 The admin dashboard includes AI-powered features for enhanced management.
 
 <p align="center">
-   <img src="https://i.imgur.com/TMQQggn.jpg" height="60%" width="60%" alt="Admin Dashboard Screenshot"/>
+  <img src="https://i.imgur.com/lhqX9iX.jpeg" width="60%" alt="Admin Dashboard Screenshot"/>
 </p>
+
 
 
 ---
