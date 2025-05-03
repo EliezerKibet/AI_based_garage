@@ -32,6 +32,7 @@ The admin dashboard includes AI-powered features for enhanced management.
    <img src="https://i.imgur.com/TMQQggn.jpg" height="60%" width="60%" alt="Admin Dashboard Screenshot"/>
 </p>
 
+
 ---
 
 ### Admin Login & Authentication
