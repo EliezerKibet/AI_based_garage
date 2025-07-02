@@ -1,0 +1,120 @@
+﻿@using GarageManagementSystem.ViewModels;
+@model AppointmentViewModel;
+@{
+    Layout = "~/Views/Shared/_LayoutCustomer.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Booking</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        
+        /* Form Styling */
+        .form-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+
+        .text-toggle[aria-expanded="false"] .text-expanded {
+            display: none;
+        }
+
+        .text-toggle[aria-expanded="true"] .text-collapsed {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+       
+
+        <!-- Booking Section -->
+        <div class="form-container">
+            <h3 class="text-center text-primary mb-3"><i class="bi bi-calendar-plus"></i> Book an Appointment</h3>
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+
+            <!-- Appointment Booking Form -->
+            <form asp-action="BookAppointment" method="post">
+                <div class="mb-3">
+                    <label for="CarId" class="form-label fw-bold"><i class="bi bi-car-front-fill"></i> Select Car</label>
+                    <select class="form-select" id="CarId" name="CarId" asp-for="CarId" required>
+                        <option value="">-- Select a Car --</option>
+                        @foreach (var car in Model.Cars)
+                        {
+                            <option value="@car.Id">@car.Make @car.Model (@car.LicenseNumber)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CarId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="AppointmentDate" class="form-label fw-bold"><i class="bi bi-calendar-date"></i> Appointment Date</label>
+                    <input type="date" class="form-control" id="AppointmentDate" name="AppointmentDate"
+                           value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")"
+                           min="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                    <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="AppointmentTime" class="form-label fw-bold"><i class="bi bi-clock"></i> Appointment Time</label>
+                    <select class="form-select" asp-for="AppointmentTime" required>
+                        <option value="">-- Select Time --</option>
+                        @for (var hour = 8; hour < 18; hour++)
+                        {
+                            for (var min = 0; min < 60; min += 30)
+                            {
+                                var time = new TimeSpan(hour, min, 0).ToString(@"hh\:mm");
+                                <option value="@time">@time</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="AppointmentTime" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="Notes" class="form-label fw-bold"><i class="bi bi-chat-left-text"></i> Notes (Optional)</label>
+                    <textarea class="form-control" id="Notes" asp-for="Notes" placeholder="Any additional details..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="bi bi-check-circle"></i> Submit Appointment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    
+</body>
+</html>

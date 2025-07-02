@@ -1,0 +1,238 @@
+﻿@using System.Data
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Dashboard";
+    @using GarageManagementSystem.ViewModels;
+    @using System.Linq;
+
+    var successMessage = TempData["SuccessMessage"] as string ?? string.Empty;
+    var errorMessage = TempData["ErrorMessage"] as string ?? string.Empty;
+    var dashboardModel = Model as DashboardViewModel;
+
+    // Collections
+    var dashboardUsers = dashboardModel?.GarageUsers ?? new List<DashboardUserViewModel>();
+    var cars = dashboardModel?.Cars ?? new List<CarViewModel>();
+    var customerCars = dashboardModel?.CustomerCars ?? new List<CustomerCarViewModel>();
+    var reports = dashboardModel?.MechanicReports ?? new List<MechanicReportViewModel>();
+
+    // Flags
+    var showCars = dashboardModel?.ShowCars ?? false;
+    var showMechanics = dashboardModel?.ShowMechanics ?? false;
+    var showUnassigned = dashboardModel?.ShowUnassignedCars ?? false;
+    var showCustomers = dashboardModel?.ShowCustomers ?? true; // Make sure this is true for immediate display
+    var showReports = dashboardModel?.ShowReports ?? false;
+}
+
+@section Styles {
+    <link href="~/css/sb-admin-2.css" rel="stylesheet" />
+   
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        /* Enhanced table styling */
+        .table-bordered {
+            border: none;
+        }
+
+            .table-bordered th {
+                background-color: #4e73df;
+                color: white;
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 0.8rem;
+                letter-spacing: 0.5px;
+                border: none;
+            }
+
+            .table-bordered td {
+                vertical-align: middle;
+                border-top: 1px solid #eaecf4;
+                border-left: none;
+                border-right: none;
+            }
+
+            .table-bordered tbody tr {
+                transition: background-color 0.2s;
+            }
+
+                .table-bordered tbody tr:hover {
+                    background-color: rgba(78, 115, 223, 0.05);
+                }
+
+        /* Car list styling */
+        ul.car-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+            ul.car-list li {
+                margin-bottom: 5px;
+                background-color: #e8f0fe;
+                padding: 4px 8px;
+                border-radius: 4px;
+                display: inline-block;
+                font-size: 0.85rem;
+            }
+
+                ul.car-list li:last-child {
+                    margin-bottom: 0;
+                }
+
+        .car-icon {
+            color: #4e73df;
+            margin-right: 5px;
+        }
+
+        .no-cars {
+            color: #858796;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        /* Card styling */
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .card-header h6 {
+                margin-bottom: 0;
+                color: #4e73df;
+            }
+
+        /* Customer info styling */
+        .customer-email {
+            color: #4e73df;
+            text-decoration: none;
+        }
+
+            .customer-email:hover {
+                text-decoration: underline;
+            }
+
+        .customer-name {
+            font-weight: 600;
+            color: #3a3b45;
+        }
+
+        .customer-phone {
+            color: #5a5c69;
+        }
+    </style>
+    
+</head>
+<div id="content">
+
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h3 mb-2 text-gray-800">Garage Customers</h1>
+                <p class="mb-4 text-gray-600">
+                    Below is a list of all registered customers in the garage management system, displaying their basic contact details.
+                </p>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>
+                <strong>Success!</strong> @successMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <strong>Error!</strong> @errorMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-users mr-2"></i> Customer List
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user mr-1"></i> Full Name</th>
+                                <th><i class="fas fa-envelope mr-1"></i> Email</th>
+                                <th><i class="fas fa-user-tag mr-1"></i> Username</th>
+                                <th><i class="fas fa-phone mr-1"></i> Phone</th>
+                                <th><i class="fas fa-car mr-1"></i> Cars</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var customer in Model.Customers)
+                            {
+                                <tr>
+                                    <td class="customer-name">@customer.FullName</td>
+                                    <td><a href="mailto:@customer.Email" class="customer-email">@customer.Email</a></td>
+                                    <td>@customer.UserName</td>
+                                    <td class="customer-phone">
+                                        @if (!string.IsNullOrEmpty(customer.PhoneNumber))
+                                        {
+                                            <a href="tel:@customer.PhoneNumber" class="customer-phone">
+                                                <i class="fas fa-phone-alt mr-1"></i> @customer.PhoneNumber
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted"><i class="fas fa-phone-slash mr-1"></i> Not provided</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (customer.Cars.Count > 0)
+                                        {
+                                            <ul class="car-list">
+                                                @foreach (var car in customer.Cars)
+                                                {
+                                                    <li><i class="fas fa-car car-icon"></i> @car.Make @car.Model (@car.Year)</li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <span class="no-cars"><i class="fas fa-times-circle mr-1"></i> No cars added yet</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<!-- End of Main Content -->
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="js/sb-admin-2.min.js"></script>

@@ -1,0 +1,103 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutCustomer.cshtml";
+}
+@{
+    ViewData["Title"] = "Dashboard";
+    @using GarageManagementSystem.ViewModels;
+    @using System.Linq;
+
+    var successMessage = TempData["SuccessMessage"] as string ?? string.Empty;
+    var errorMessage = TempData["ErrorMessage"] as string ?? string.Empty;
+    @model GarageManagementSystem.ViewModels.AppointmentViewModel
+
+    @using GarageManagementSystem.ViewModels;
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>@ViewData["Title"] - Customer Dashboard</title>
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+
+</head>
+
+
+
+
+<!-- Main Content -->
+<div id="content">
+
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+
+        <!-- Content Row -->
+        <div class="row">
+            <div class="container mt-4">
+                <h2>Propose New Date for Appointment</h2>
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                }
+
+                <form asp-action="ProposeNewDate" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CarId" />
+
+                    <div class="mb-3">
+                        <label asp-for="AppointmentDate" class="form-label">Appointment Date</label>
+                        <input asp-for="AppointmentDate" class="form-control" type="date" />
+                        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="AppointmentTime" class="form-label">Appointment Time</label>
+                        <input asp-for="AppointmentTime" class="form-control" type="time" min="08:00" max="18:00" step="1800" />
+                        <span asp-validation-for="AppointmentTime" class="text-danger"></span>
+                        <small class="form-text text-muted">Allowed time: 08:00 - 18:00, in 30-minute intervals.</small>
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label asp-for="Notes" class="form-label"></label>
+                        <textarea asp-for="Notes" class="form-control"></textarea>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+
+                </form>
+
+
+
+
+
+            </div>
+            <!-- /.container-fluid -->
+        </div>
+
+    </div>
+    <!-- End of Main Content -->
+    <!-- Footer -->
+    <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span>Copyright &copy; Garage Management System 2025</span>
+            </div>
+        </div>
+    </footer>
+    <!-- End of Footer -->
+</div>
+<!-- End of Content Wrapper -->
+
+
+
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="js/sb-admin-2.min.js"></script>
+

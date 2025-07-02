@@ -1,0 +1,319 @@
+﻿body {
+    font-family: 'Inter', 'Nunito', sans-serif;
+    background-color: #f8f9fc;
+    color: #333;
+}
+
+/* Main container */
+.container-fluid {
+    padding: 1.5rem;
+}
+
+/* Page header */
+.page-header {
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+
+    .page-header h1 {
+        font-weight: 700;
+        color: #2e3951;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #6c757d;
+        font-size: 1rem;
+    }
+
+    .page-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(90deg, #4e73df, #36b9cc);
+        border-radius: 3px;
+    }
+
+/* Car report cards */
+.car-card {
+    border: none;
+    border-radius: 0.8rem;
+    box-shadow: 0 0.15rem 1.75rem rgba(33, 40, 50, 0.1);
+    margin-bottom: 1.25rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
+
+    .car-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.35rem 2rem rgba(33, 40, 50, 0.12);
+    }
+
+    /* Card header styling */
+    .car-card .card-header {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        border: none;
+        padding: 0.75rem;
+        border-top-left-radius: 0.8rem !important;
+        border-top-right-radius: 0.8rem !important;
+    }
+
+        .car-card .card-header button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            text-align: left;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+            .car-card .card-header button:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+
+            .car-card .card-header button:focus {
+                box-shadow: none;
+            }
+
+.car-info-container {
+    display: flex;
+    align-items: center;
+}
+
+.car-icon {
+    margin-right: 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.car-license {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 0.35rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    margin-left: 0.75rem;
+}
+
+/* Car body styling */
+.car-card .card-body {
+    padding: 1.25rem;
+    background-color: white;
+}
+
+/* Report toggle buttons */
+.report-toggle {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.5rem;
+    background-color: #f8f9fc;
+    color: #4e73df;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 0.125rem 0.25rem rgba(33, 40, 50, 0.07);
+}
+
+    .report-toggle:hover {
+        background-color: #eaecf4;
+        border-color: #d1d3e2;
+        color: #2e59d9;
+    }
+
+    .report-toggle:focus {
+        box-shadow: none;
+    }
+
+    .report-toggle i {
+        transition: transform 0.2s;
+    }
+
+    .report-toggle[aria-expanded="true"] i.fa-chevron-down {
+        transform: rotate(180deg);
+    }
+
+.date-info {
+    display: flex;
+    align-items: center;
+    color: #6e707e;
+    font-size: 0.85rem;
+}
+
+    .date-info i {
+        margin-right: 0.5rem;
+    }
+
+/* Report details card */
+.report-details {
+    border: none;
+    border-radius: 0.5rem;
+    background-color: white;
+    box-shadow: 0 0.125rem 0.5rem rgba(33, 40, 50, 0.1);
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+    .report-details .card-body {
+        padding: 1.5rem;
+    }
+
+/* Section headers */
+.section-title {
+    color: #4e73df;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+/* Detail rows */
+.detail-row {
+    margin-bottom: 1rem;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #5a5c69;
+    margin-right: 0.5rem;
+}
+
+.detail-content {
+    color: #3a3b45;
+}
+
+/* Parts section */
+.parts-section {
+    background-color: #f8f9fc;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    margin: 1rem 0;
+}
+
+.parts-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 0.125rem 0.25rem rgba(33, 40, 50, 0.07);
+    margin-top: 1rem;
+}
+
+    .parts-table th {
+        background-color: #4e73df;
+        color: white;
+        font-weight: 500;
+        padding: 0.75rem;
+        text-align: left;
+    }
+
+    .parts-table tr:nth-child(even) {
+        background-color: #f8f9fc;
+    }
+
+    .parts-table td {
+        padding: 0.75rem;
+        border-top: 1px solid #e3e6f0;
+    }
+
+/* Price indicators */
+.price-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+
+.price-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.35rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.service-fee {
+    background-color: #e3f2fd;
+    color: #0d6efd;
+}
+
+.total-price {
+    background-color: #e8f5e9;
+    color: #198754;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #b7b9cc;
+}
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Animation for collapsing/expanding */
+.collapse {
+    transition: all 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .car-info-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .car-license {
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+
+    .report-toggle {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .date-info {
+        margin-top: 0.5rem;
+    }
+
+    .price-container {
+        flex-direction: column;
+    }
+
+    .price-badge {
+        margin-bottom: 0.5rem;
+    }
+}

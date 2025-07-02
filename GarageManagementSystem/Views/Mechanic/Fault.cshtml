@@ -1,0 +1,442 @@
+﻿@using GarageManagementSystem.ViewModels
+@model AssignFaultViewModel
+@using System.Globalization;
+@{
+    ViewData["Title"] = "Manage Faults";
+    Layout = "~/Views/Shared/_LayoutMechanic.cshtml";
+}
+<head>
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="~/css/CarFaults.css" rel="stylesheet">
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+
+        .fault-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+
+            .fault-item.resolved {
+                background-color: #e8f5e9;
+                border-color: #81c784;
+            }
+
+            .fault-item.unresolved {
+                background-color: #ffebee;
+                border-color: #ef9a9a;
+            }
+
+        .toggle-status-btn {
+            float: right;
+        }
+
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        select.form-select, textarea.form-control {
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .fault-item {
+            border: 1px solid #e0e0e0;
+            border-left: 5px solid #ffa000;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #fff;
+            transition: background-color 0.3s ease;
+        }
+
+            .fault-item.resolved {
+                border-left-color: #66bb6a;
+                background-color: #f1f8f4;
+            }
+
+            .fault-item.unresolved {
+                border-left-color: #ef5350;
+                background-color: #fdf4f4;
+            }
+
+        .btn-primary {
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+        }
+
+        label {
+            font-weight: 500;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+    </style>
+</head> 
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-9 col-lg-10">
+            <h1 class="text-center mb-4" style="font-size:2.5rem;">
+                Modify and Add Faults as Needed
+            </h1>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <!-- Car dropdown selector -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Select Car</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="carSelector" class="form-label">Choose a Car to View Its Faults</label>
+                        <select id="carSelector" class="form-select form-control">
+                            <option value="">-- All Cars --</option>
+                            @foreach (var car in Model.AssignedCars)
+                            {
+                                <option value="@car.CarId">
+                                    @car.CarMake @car.CarModel (@car.LicenseNumber)
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faults Management Section -->
+            <div class="row">
+                <!-- View and Manage Faults Section -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h4 class="mb-0">View Car Faults</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="car-faults-list">
+                                <p class="text-center">Please select a car to view its faults.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resolved/Unresolved Faults Section -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0">Fault Status Summary</h4>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs" id="faultStatusTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="unresolved-tab" data-bs-toggle="tab"
+                                            data-bs-target="#unresolved" type="button" role="tab">
+                                        Unresolved
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="resolved-tab" data-bs-toggle="tab"
+                                            data-bs-target="#resolved" type="button" role="tab">
+                                        Resolved
+                                    </button>
+                                </li>
+                            </ul>
+                            <div class="tab-content pt-3" id="faultStatusTabContent">
+                                <div class="tab-pane fade show active" id="unresolved" role="tabpanel">
+                                    <div id="unresolved-faults-list">
+                                        <p class="text-center">Please select a car to view unresolved faults.</p>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="resolved" role="tabpanel">
+                                    <div id="resolved-faults-list">
+                                        <p class="text-center">Please select a car to view resolved faults.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add New Fault Section -->
+            <div class="card mt-4">
+                <div class="card-header bg-warning">
+                    <h4 class="mb-0">Add a New Fault</h4>
+                </div>
+                <div class="card-body">
+                    <form id="add-fault-form">
+                        <div class="mb-3">
+                            <label for="carId" class="form-label">Select Car</label>
+                            <select id="carId" name="CarId" class="form-select form-control" required>
+                                <option value="">-- Select a car --</option>
+                                @foreach (var car in Model.AssignedCars)
+                                {
+                                    <option value="@car.CarId">
+                                        @car.CarMake @car.CarModel (@car.LicenseNumber)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="faultDescription" class="form-label">Fault Description</label>
+                            <textarea id="faultDescription" name="Description"
+                                      class="form-control" rows="4" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add Fault</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fault list templates (hidden) -->
+<template id="fault-item-template">
+    <div class="fault-item {{status-class}}">
+        <button class="btn {{btn-class}} btn-sm toggle-status-btn" data-id="{{id}}">
+            {{status-text}}
+        </button>
+        <h5>{{description}}</h5>
+        <p class="text-muted mb-1">Reported on: {{date}}</p>
+        <p class="mb-0"><span class="badge {{badge-class}}">{{status}}</span></p>
+    </div>
+</template>
+
+@section Scripts {
+
+    <!-- Scripts -->
+    <script src="~/vendor/jquery/jquery.slim.js"></script>
+    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/sb-admin-2.min.js"></script>
+
+    <script>
+        $(function() {
+            // Handle car selection from dropdown
+            $('#carSelector').change(function() {
+                var selectedCarId = $(this).val();
+                loadCarFaults(selectedCarId);
+            });
+
+            // Function to load all faults for a car
+            function loadCarFaults(carId) {
+                // Clear existing content if no car selected
+                if (!carId) {
+                    $('#car-faults-list').html('<p class="text-center">Please select a car to view its faults.</p>');
+                    $('#unresolved-faults-list').html('<p class="text-center">Please select a car to view unresolved faults.</p>');
+                    $('#resolved-faults-list').html('<p class="text-center">Please select a car to view resolved faults.</p>');
+                    return;
+                }
+
+                // Use the existing ModifyResolutionStatus endpoint to get all faults
+                $.ajax({
+                    type: 'GET',
+                    url: '/Mechanic/ModifyResolutionStatus',
+                    data: { carId: carId },
+                    dataType: 'json',
+                    success: function(faults) {
+                        if (faults && faults.length > 0) {
+                            renderFaults(faults, carId);
+                        } else {
+                            $('#car-faults-list').html('<p class="text-center">No faults found for this car.</p>');
+                            $('#unresolved-faults-list').html('<p class="text-center">No unresolved faults found.</p>');
+                            $('#resolved-faults-list').html('<p class="text-center">No resolved faults found.</p>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' - ' + error);
+                        $('#car-faults-list').html('<p class="text-center text-danger">Error loading faults. Please try again.</p>');
+                        $('#unresolved-faults-list').html('<p class="text-center text-danger">Error loading faults. Please try again.</p>');
+                        $('#resolved-faults-list').html('<p class="text-center text-danger">Error loading faults. Please try again.</p>');
+                    }
+                });
+            }
+
+            // Render faults into the appropriate sections
+            function renderFaults(faults, carId) {
+                // Group faults by status
+                var allFaultsHtml = '';
+                var resolvedFaultsHtml = '';
+                var unresolvedFaultsHtml = '';
+
+                // Get template
+                var template = $('#fault-item-template').html();
+
+                // Process each fault
+                faults.forEach(function(fault) {
+                    var isResolved = fault.resolutionStatus;
+                    var statusClass = isResolved ? 'resolved' : 'unresolved';
+                    var btnClass = isResolved ? 'btn-danger' : 'btn-success';
+                    var statusText = isResolved ? 'Mark Unresolved' : 'Mark Resolved';
+                    var badgeClass = isResolved ? 'bg-success' : 'bg-danger';
+                    var status = isResolved ? 'Resolved' : 'Unresolved';
+
+                    // Format date if available
+                        var date = fault.dateReportedOn
+                        ? new Date(fault.dateReportedOn).toLocaleDateString()
+                        : 'Unknown';
+
+
+
+
+                    // Replace template placeholders
+                    var html = template
+                        .replace('{{status-class}}', statusClass)
+                        .replace('{{btn-class}}', btnClass)
+                        .replace('{{id}}', fault.id)
+                        .replace('{{status-text}}', statusText)
+                        .replace('{{description}}', fault.description)
+                        .replace('{{date}}', date)
+                        .replace('{{badge-class}}', badgeClass)
+                        .replace('{{status}}', status);
+
+                    // Add to appropriate sections
+                    allFaultsHtml += html;
+
+                    if (isResolved) {
+                        resolvedFaultsHtml += html;
+                    } else {
+                        unresolvedFaultsHtml += html;
+                    }
+                });
+
+                // Update the DOM
+                $('#car-faults-list').html(allFaultsHtml || '<p class="text-center">No faults found for this car.</p>');
+                $('#resolved-faults-list').html(resolvedFaultsHtml || '<p class="text-center">No resolved faults found.</p>');
+                $('#unresolved-faults-list').html(unresolvedFaultsHtml || '<p class="text-center">No unresolved faults found.</p>');
+            }
+
+            // Handle new fault form submission
+            $('#add-fault-form').submit(function(e) {
+                e.preventDefault();
+                var carId = $('#carId').val(),
+                    description = $('#faultDescription').val().trim();
+
+                if (!carId || !description) {
+                    return alert('Please select a car and enter a description.');
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Mechanic/AddFault',
+                    data: { CarId: carId, Description: description },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Clear form
+                            $('#carId').val('');
+                            $('#faultDescription').val('');
+
+                            // Show success message
+                            alert('Fault added successfully!');
+
+                            // Refresh the current car's faults if the same car is selected
+                            var selectedCarId = $('#carSelector').val();
+                            if (selectedCarId == carId) {
+                                loadCarFaults(selectedCarId);
+                            }
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' - ' + error);
+                        alert('Failed to add fault. Please try again.');
+                    }
+                });
+            });
+
+            // Handle fault status toggle
+            $(document).on('click', '.toggle-status-btn', function() {
+                var faultId = $(this).data('id');
+                var carId = $('#carSelector').val();
+
+                // For toggling a single fault, we'll create an array with just this fault's ID
+                var resolvedFaults = [];
+
+                // Get current status (if button says "Mark Unresolved", it's currently resolved)
+                var isCurrentlyResolved = $(this).text().trim() === 'Mark Unresolved';
+
+                // Get all other resolved faults except this one if it's being unmarked
+                $('.toggle-status-btn').each(function() {
+                    var btnId = $(this).data('id');
+                    var btnText = $(this).text().trim();
+
+                    // Add IDs of resolved faults to our array
+                    if (btnId != faultId && btnText === 'Mark Unresolved') {
+                        resolvedFaults.push(btnId);
+                    }
+                });
+
+                // If we're marking this fault as resolved, add it to the array
+                if (!isCurrentlyResolved) {
+                    resolvedFaults.push(faultId);
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Mechanic/ModifyResolutionStatus',
+                    data: {
+                        carId: carId,
+                        resolvedFaults: resolvedFaults
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Refresh the current car's faults
+                            loadCarFaults(carId);
+                        } else {
+                            alert('Error updating fault status.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' - ' + error);
+                        alert('Failed to update fault status. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+}

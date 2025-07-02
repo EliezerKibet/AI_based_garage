@@ -1,0 +1,41 @@
+﻿@model IEnumerable<GarageManagementSystem.ViewModels.FaultViewModel>
+@if (Model != null && Model.Any())
+{
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Description</th>
+                <th>Date Reported</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var fault in Model)
+            {
+                <tr>
+                    <td>@fault.Id</td>
+                    <td>@fault.Description</td>
+                    <td>@fault.DateReportedOn.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <span class="badge @(fault.ResolutionStatus ? "bg-success" : "bg-warning")">
+                            @(fault.ResolutionStatus ? "Resolved" : "Unresolved")
+                        </span>
+                    </td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-sm @(fault.ResolutionStatus ? "btn-warning" : "btn-success") toggle-status-btn"
+                                data-id="@fault.Id">
+                            @(fault.ResolutionStatus ? "Mark Unresolved" : "Mark Resolved")
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-center">No faults to manage.</p>
+}

@@ -1,0 +1,325 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = GarageManagementSystem
+build_property.RootNamespace = GarageManagementSystem
+build_property.ProjectDir = C:\Users\Eliezer Kibet Rotich\source\repos\EliezerKibet\AI_based_garage\GarageManagementSystem\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\Eliezer Kibet Rotich\source\repos\EliezerKibet\AI_based_garage\GarageManagementSystem
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Account/ConfirmEmailSuccess.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxDb25maXJtRW1haWxTdWNjZXNzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Account/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Account/ForgotPasswordConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZENvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Account/RegisterConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3RlckNvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Account/ResendEmailConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNlbmRFbWFpbENvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Account/ResetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNldFBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Account/ResetPasswordConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNldFBhc3N3b3JkQ29uZmlybWF0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/AddOperationCode.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkT3BlcmF0aW9uQ29kZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/AddServicePart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkU2VydmljZVBhcnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/AdminAppointmentDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5BcHBvaW50bWVudERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/AdminNotificationViewPage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5Ob3RpZmljYXRpb25WaWV3UGFnZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/AdminSearch.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TZWFyY2guY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/Appointments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXBwb2ludG1lbnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/AssignCars.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXNzaWduQ2Fycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/AssignFaultsToCar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXNzaWduRmF1bHRzVG9DYXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/CarList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ2FyTGlzdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/CarReports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ2FyUmVwb3J0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/Chatbot.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ2hhdGJvdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/CustomerList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3VzdG9tZXJMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/EditCustomer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdEN1c3RvbWVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/EditMechanic.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdE1lY2hhbmljLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/EditOperationCode.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdE9wZXJhdGlvbkNvZGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/EditReport.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdFJlcG9ydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/EditServicePart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdFNlcnZpY2VQYXJ0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/EditUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdFVzZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/MechanicInfo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWVjaGFuaWNJbmZvLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/PartsManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUGFydHNNYW5hZ2VtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Admin/ProposeNewDate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUHJvcG9zZU5ld0RhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/AddCar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcQWRkQ2FyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/BookAppointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcQm9va0FwcG9pbnRtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/CustomerAppointmentDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcQ3VzdG9tZXJBcHBvaW50bWVudERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/CustomerAppointments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcQ3VzdG9tZXJBcHBvaW50bWVudHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/CustomerDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcQ3VzdG9tZXJEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/CustomerFaults.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcQ3VzdG9tZXJGYXVsdHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/CustomerNotificationViewPage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcQ3VzdG9tZXJOb3RpZmljYXRpb25WaWV3UGFnZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/CustomerSearch.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcQ3VzdG9tZXJTZWFyY2guY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/EditAppointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcRWRpdEFwcG9pbnRtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/EditCar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcRWRpdENhci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/MyCarReports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcTXlDYXJSZXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/MyCars.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcTXlDYXJzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/ProposeNewDate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcUHJvcG9zZU5ld0RhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Customer/Settings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcU2V0dGluZ3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/AppointmentDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcQXBwb2ludG1lbnREZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/AssignedList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcQXNzaWduZWRMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/CreateMechanicReport.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcQ3JlYXRlTWVjaGFuaWNSZXBvcnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/EditReport.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcRWRpdFJlcG9ydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/Fault.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcRmF1bHQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/GetCarReports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcR2V0Q2FyUmVwb3J0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/ManageFaults.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcTWFuYWdlRmF1bHRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/MechanicAppointments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcTWVjaGFuaWNBcHBvaW50bWVudHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/MechanicNotificationViewPage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcTWVjaGFuaWNOb3RpZmljYXRpb25WaWV3UGFnZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/MechanicSearch.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcTWVjaGFuaWNTZWFyY2guY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/ProposeNewDate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcUHJvcG9zZU5ld0RhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/Settings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcU2V0dGluZ3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Mechanic/_FaultsList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVjaGFuaWNcX0ZhdWx0c0xpc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Shared/_AccountLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BY2NvdW50TGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Shared/_AllResolvedFaults.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BbGxSZXNvbHZlZEZhdWx0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Shared/_CarFaultsDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9DYXJGYXVsdHNEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Shared/_FaultDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9GYXVsdERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Shared/_LoginPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/SuccesfulLogIn/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VjY2VzZnVsTG9nSW5cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Shared/_LayoutAdmin.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXRBZG1pbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = b-j3uft0p7vw
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Shared/_LayoutCustomer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXRDdXN0b21lci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = b-h3kagwh1mm
+
+[C:/Users/Eliezer Kibet Rotich/source/repos/EliezerKibet/AI_based_garage/GarageManagementSystem/Views/Shared/_LayoutMechanic.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXRNZWNoYW5pYy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = b-z9z56mmnej

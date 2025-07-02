@@ -1,0 +1,68 @@
+﻿body {
+}
+
+
+/* Card hover effects */
+.report-card:hover {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+    transition: all 0.3s ease;
+}
+
+/* Search highlight */
+.highlight {
+    background-color: #ffff99;
+    padding: 0 2px;
+}
+
+/* Add this to your existing CSS or reports.css file */
+.service-info-card {
+    transition: all 0.2s ease;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+    .service-info-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+.icon-container {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.service-info-card .card-body {
+    padding: 0;
+}
+
+.timeline-item {
+    border-left-width: 3px !important;
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+    .timeline-item:before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 0;
+        background-color: #4e73df;
+        height: 15px;
+        width: 15px;
+        border-radius: 50%;
+    }
+
+.details-container {
+    border-radius: 0.35rem;
+    background-color: #f8f9fc;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+.parts-table {
+    font-size: 0.85rem;
+}
+
+    .parts-table th {
+        font-weight: 600;
+    }

@@ -1,0 +1,399 @@
+﻿@using System.Globalization;
+@using GarageManagementSystem.ViewModels;
+@using System.Data
+@{
+    ViewData["Title"] = "Customer Dashboard";
+    Layout = "~/Views/Shared/_LayoutCustomer.cshtml";
+    var dataTable = Model.MyTable;
+
+}
+@model GarageManagementSystem.ViewModels.CustomerDashboardViewModel
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+<head>
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+
+</head>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <h1 class="text-center mb-4">Customer Dashboard</h1>
+        <p class="text-center mb-5">Welcome to your personalized dashboard! Here you can manage your cars, view your reports, and check your upcoming appointments with the garage. Easily track all your car-related activities in one place.</p>
+
+        <!-- Total Cars Owned Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                My Cars
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.CarCount
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-car fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Reports-->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Reports Made
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.ReportCount
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Upcoming appointments-->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Upcoming Appointments
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.UpcomingAppointmentsCount
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Car List -->
+        <div class="card mt-5 shadow">
+            @if (Model.Cars.Any())
+            {
+                
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Car List</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                        @if (dataTable != null && dataTable.Rows.Count > 0){
+                            <table id="myTable" class="display">
+                                <thead>
+                                    <tr>
+                                        <th>Make</th>
+                                        <th>Model</th>
+                                        <th>Year</th>
+                                        <th>Color</th>
+                                        <th>Chassis Number</th>
+                                        <th>Fuel Type</th>
+                                        <th>License Number</th>
+                                        <th>Mechanic</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (DataRow row in dataTable.Rows)
+                                    {
+                                        <tr>
+                                            <td>@row["Make"]</td>
+                                            <td>@row["Model"]</td>
+                                            <td>@row["Year"]</td>
+                                            <td>@row["Color"]</td>
+                                            <td>@row["Chassis Number"]</td>
+                                            <td>@row["Fuel Type"]</td>
+                                            <td>@row["License Number"]</td>
+                                            <td>@row["Mechanic"]</td>
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                        }
+                        else
+                        {
+                            <p>No cars available.</p>
+                        }
+                               
+                        </div>
+                    </div>
+                
+            }
+            else
+            {
+                <div class="alert alert-info text-center mt-5">
+                    <i class="bi bi-info-circle"></i> No cars added yet.
+                </div>
+            }
+        </div>
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+
+            <!-- Car Faults Table (Initially Hidden) -->
+            <div id="carFaultsContainer" class="mt-4" style="display: none;">
+                <div class="card shadow-lg border-0">
+                    <!-- Removed outline -->
+                    <div class="card-header bg-primary text-white text-center rounded-top">
+                        <h3 class="mb-0 p-2">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Car Faults
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered align-middle">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Car</th>
+                                        <th>Fault Description</th>
+                                        <th>Date Reported</th>
+                                        <th>Resolution Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-light">
+                                    @foreach (var car in Model.Cars)
+                                    {
+                                        bool firstRow = true;
+                                        int rowSpan = car.Faults.Count();
+                                        foreach (var fault in car.Faults)
+                                        {
+                                            <tr>
+                                                @if (firstRow)
+                                                {
+                                                    <td rowspan="@rowSpan" class="fw-bold text-primary">
+                                                        <i class="bi bi-car-front-fill"></i> @car.Make @car.Model <br>
+                                                        <small class="text-muted">(@car.LicenseNumber)</small>
+                                                    </td>
+                                                    firstRow = false;
+                                                }
+                                                <td>@fault.Description</td>
+                                                <td><i class="bi bi-calendar-check"></i> @fault.DateReportedOn.ToString("yyyy-MM-dd")</td>
+                                                <td>
+                                                    @if (fault.ResolutionStatus)
+                                                    {
+                                                        <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Resolved</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle-fill"></i> Not Resolved</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Fault Form (Initially Hidden) -->
+            <div id="faultFormContainer" class="mt-4" style="display: none;">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white text-center rounded-top">
+                        <h3 class="mb-0 p-2">
+                            <i class="bi bi-tools"></i> Assign a Fault
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-controller="Customer" asp-action="AssignFault" method="post" class="mt-3">
+                            <div class="mb-3">
+                                <label for="carId" class="form-label fw-bold"><i class="bi bi-car-front-fill"></i> Select Car:</label>
+                                <select id="carId" name="CarId" class="form-select">
+                                    @foreach (var car in Model.Cars)
+                                    {
+                                        <option value="@car.Id">@car.Make @car.Model (@car.LicenseNumber)</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label fw-bold"><i class="bi bi-pencil-square"></i> Fault Description:</label>
+                                <textarea id="description" name="Description" class="form-control" rows="4" placeholder="Enter fault details..." required></textarea>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-success px-4">
+                                    <i class="bi bi-check-circle-fill"></i> Assign Fault
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Car Report (Initially Hidden) -->
+            <div id="carReportContainer" class="mt-4 p-4 bg-light rounded shadow-lg" style="display: none;">
+                <div class="card border-0">
+                    <div class="card-header bg-primary text-white text-center rounded-top">
+                        <h3 class="mb-0 p-2">
+                            <i class="bi bi-file-text-fill"></i> Car Report
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form class="mt-3">
+                            <!-- Car Selection -->
+                            <div class="mb-3">
+                                <label for="carSelect" class="form-label fw-bold">
+                                    <i class="bi bi-car-front-fill"></i> Select Car:
+                                </label>
+                                <select id="carSelect" class="form-select" onchange="showCarReportDetails(this)">
+                                    <option value="">-- Select Car --</option>
+                                    @foreach (var car in Model.Cars)
+                                    {
+                                        <option value="@car.Id">@car.Make @car.Model (@car.LicenseNumber)</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Car Details Section -->
+                            <div id="carDetailsSection" class="mt-4 p-4 bg-white border rounded shadow-sm" style="display:none;">
+                                <h5 class="text-secondary border-bottom pb-2">
+                                    <i class="bi bi-person-wrench"></i> Mechanic Report
+                                </h5>
+                                <div id="mechanicDetails" class="mt-2">
+                                    <p><strong>Mechanic:</strong> <span id="mechanicName" class="text-dark"></span></p>
+                                    <p><strong>Service Details:</strong> <span id="serviceDetails" class="text-dark"></span></p>
+                                    <p><strong>Additional Notes:</strong> <span id="additionalNotes" class="text-dark"></span></p>
+                                </div>
+
+                                <!-- Parts Used Section -->
+                                <div id="partsUsed" class="mt-4">
+                                    <h5 class="text-secondary border-bottom pb-2">
+                                        <i class="bi bi-tools"></i> Parts Used
+                                    </h5>
+                                    <ul id="partsList" class="list-group list-group-flush"></ul>
+                                    <p class="mt-3">
+                                        <strong>Total Price: </strong>
+                                        <span id="totalPrice" class="text-success fw-bold"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- No Report Message -->
+                            <div id="noReportMessage" class="mt-3 text-center text-danger fw-bold" style="display:none;">
+                                <p><i class="bi bi-exclamation-circle-fill"></i> No report has been made for this car yet.</p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+
+<!-- Scripts for showing/hiding sections -->
+<<script>
+
+      function confirmDelete() {
+         return confirm("Are you sure you want to delete this car?");
+     }
+     // Function to show/hide different sections
+     function showSection(showId, ...hideIds) {
+         const showElement = document.getElementById(showId);
+         if (showElement) showElement.style.display = "block";
+
+         hideIds.forEach(id => {
+             const element = document.getElementById(id);
+             if (element) element.style.display = "none";
+         });
+     }
+
+     function showCurrentCars() {
+         showSection("carListContainer", "addCarForm", "faultFormContainer", "carFaultsContainer", "carReportContainer", "welcomeMessage");
+     }
+
+     function showFaultForm() {
+         showSection("faultFormContainer", "addCarForm", "carListContainer", "carFaultsContainer", "carReportContainer", "welcomeMessage");
+     }
+
+     function showCarReport() {
+         showSection("carReportContainer", "addCarForm", "carListContainer", "faultFormContainer", "carFaultsContainer", "welcomeMessage");
+     }
+
+     function showCarFaults() {
+         showSection("carFaultsContainer", "addCarForm", "carListContainer", "faultFormContainer", "carReportContainer", "welcomeMessage");
+     }
+
+     function showCarReportDetails(selectElement) {
+         const carId = selectElement.value;
+         const carDetailsSection = document.getElementById("carDetailsSection");
+
+         if (!carId || !carDetailsSection) {
+             if (carDetailsSection) carDetailsSection.style.display = "none";
+             return;
+         }
+
+         carDetailsSection.style.display = "block";
+         document.getElementById("partsList").innerHTML = ''; // Clear previous parts
+
+         // Fetch car report details using AJAX
+         fetch(`/Customer/GetCarReportDetails?carId=${carId}`)
+             .then(response => {
+                 if (!response.ok) throw new Error("Network response was not ok");
+                 return response.json();
+             })
+             .then(data => {
+                 document.getElementById("mechanicName").textContent = data.isReportAvailable ? data.mechanicName : "N/A";
+                 document.getElementById("serviceDetails").textContent = data.isReportAvailable ? data.serviceDetails : "N/A";
+                 document.getElementById("additionalNotes").textContent = data.isReportAvailable ? data.additionalNotes : "N/A";
+
+                 let totalPrice = 0;
+                 if (data.isReportAvailable && data.parts.length > 0) {
+                     const partsList = data.parts.map(part => {
+                         totalPrice += part.partPrice * part.quantity;
+                         return `<li>${part.partName} - $${part.partPrice} - Quantity: ${part.quantity}</li>`;
+                     }).join('');
+                     document.getElementById("partsList").innerHTML = partsList;
+                     document.getElementById("totalPrice").textContent = `$${totalPrice}`;
+                 } else {
+                     document.getElementById("partsList").innerHTML = "N/A";
+                     document.getElementById("totalPrice").textContent = "$0";
+                 }
+             })
+             .catch(error => console.error("Error fetching car report:", error));
+     }
+</script>
+<script>
+    let table = new DataTable('#myTable');
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

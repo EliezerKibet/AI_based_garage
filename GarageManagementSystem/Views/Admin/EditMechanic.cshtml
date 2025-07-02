@@ -1,0 +1,197 @@
+﻿@model GarageManagementSystem.ViewModels.MechanicViewModel
+@{
+    ViewData["Title"] = "Edit Mechanic";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>@ViewData["Title"] - Car Listings</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+        
+    </style>
+</head>
+
+
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">
+        <i class="fas fa-user-cog mr-2"></i>Edit Mechanic Details
+    </h1>
+
+    <!-- Success Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Mechanic Information Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user-edit mr-1"></i> Mechanic Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Admin" asp-action="EditMechanic" method="post">
+                        <input type="hidden" asp-for="UserId" />
+
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Full Name</label>
+                            <div class="col-sm-9">
+                                <input asp-for="FullName" class="form-control" required />
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Email</label>
+                            <div class="col-sm-9">
+                                <input asp-for="Email" class="form-control" type="email" required />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Phone Number</label>
+                            <div class="col-sm-9">
+                                <input asp-for="PhoneNumber" class="form-control" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-9 offset-sm-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-1"></i> Save Changes
+                                </button>
+                                <a asp-action="MechanicInfo" class="btn btn-secondary ml-2">
+                                    <i class="fas fa-arrow-left mr-1"></i> Back to List
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Assigned Cars Card -->
+            <!-- Assigned Cars Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-car mr-1"></i> Assigned Cars (@(Model.Cars?.Count ?? 0))
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Cars != null && Model.Cars.Any())
+                    {
+                        <div class="assigned-cars-list">
+                            @foreach (var car in Model.Cars)
+                            {
+                                <div class="car-item mb-3 border-bottom pb-3">
+                                    <h6 class="font-weight-bold">
+                                        @car.CarMake @car.CarModel (@car.CarYear)
+                                    </h6>
+                                    <p class="small text-muted mb-1">
+                                        <i class="fas fa-id-card mr-1"></i> @car.LicenseNumber
+                                    </p>
+                                    <p class="mb-1">
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-wrench mr-1"></i> @(car.Faults?.Count ?? 0) Fault(s)
+                                        </span>
+                                        <span class="badge badge-success ml-1">
+                                            <i class="fas fa-check-circle mr-1"></i> @(car.Faults?.Count(f => f.ResolutionStatus) ?? 0) Resolved
+                                        </span>
+                                    </p>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-center text-muted pt-3">
+                            <i class="fas fa-info-circle mr-1"></i> No cars currently assigned to this mechanic.
+                        </p>
+                    }
+                </div>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar mr-1"></i> Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center mb-3">
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(Model.Cars?.Count ?? 0)</div>
+                            <div class="text-xs text-gray-600">Cars Assigned</div>
+                        </div>
+                        <div class="col-6 text-center mb-3">
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @(Model.Cars?.SelectMany(c => c.Faults ?? new List<FaultViewModel>()).Count(f => f.ResolutionStatus) ?? 0)
+                            </div>
+                            <div class="text-xs text-gray-600">Faults Resolved</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @(Model.Cars?.SelectMany(c => c.Faults ?? new List<FaultViewModel>()).Count(f => !f.ResolutionStatus) ?? 0)
+                            </div>
+                            <div class="text-xs text-gray-600">Pending Faults</div>
+                        </div>
+                        <div class="col-6 text-center">
+                            @{
+                                int totalFaults = Model.Cars?.SelectMany(c => c.Faults ?? new List<FaultViewModel>()).Count() ?? 0;
+                                int resolvedFaults = Model.Cars?.SelectMany(c => c.Faults ?? new List<FaultViewModel>()).Count(f => f.ResolutionStatus) ?? 0;
+                                string completionRate = totalFaults > 0 ? $"{resolvedFaults * 100 / totalFaults}%" : "0%";
+                            }
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @completionRate
+                            </div>
+                            <div class="text-xs text-gray-600">Completion Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+```

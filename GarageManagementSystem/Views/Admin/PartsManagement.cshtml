@@ -1,0 +1,510 @@
+﻿@model GarageManagementSystem.ViewModels.PartsManagementViewModel
+
+@{
+    ViewData["Title"] = "Parts & Operations Management";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <link href="~/css/sb-admin-2.css" rel="stylesheet" />
+    <style>
+        /* Enhanced table styling - matching admin design */
+        .table-bordered {
+            border: none;
+        }
+
+        .table-bordered th {
+            background-color: #4e73df;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            border: none;
+        }
+
+        .table-bordered td {
+            vertical-align: middle;
+            border-top: 1px solid #eaecf4;
+            border-left: none;
+            border-right: none;
+        }
+
+        .table-bordered tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .table-bordered tbody tr:hover {
+            background-color: rgba(78, 115, 223, 0.05);
+        }
+
+        /* Card styling - matching admin design */
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            padding: 1rem 1.25rem;
+        }
+
+        .card-header h6 {
+            margin-bottom: 0;
+            color: #4e73df;
+        }
+
+        /* Tab styling */
+        .nav-tabs {
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: #5a5c69;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #4e73df;
+            background-color: transparent;
+            border-bottom: 3px solid #4e73df;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #4e73df;
+            background-color: #f8f9fc;
+        }
+
+        /* Status badges */
+        .status-active {
+            background-color: #1cc88a;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.35rem;
+            font-size: 0.75rem;
+        }
+
+        .status-inactive {
+            background-color: #e74a3b;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.35rem;
+            font-size: 0.75rem;
+        }
+
+        .status-available {
+            background-color: #1cc88a;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.35rem;
+            font-size: 0.75rem;
+        }
+
+        .status-unavailable {
+            background-color: #e74a3b;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.35rem;
+            font-size: 0.75rem;
+        }
+
+        /* Action buttons */
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            margin: 0 0.125rem;
+        }
+
+        /* Summary cards */
+        .summary-card {
+            border-left: 4px solid #4e73df;
+            background: linear-gradient(90deg, rgba(78, 115, 223, 0.1) 0%, rgba(78, 115, 223, 0.05) 100%);
+        }
+
+        /* Search and filter section */
+        .filter-section {
+            background-color: #f8f9fc;
+            border: 1px solid #e3e6f0;
+            border-radius: 0.35rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .btn-action {
+                display: block;
+                width: 100%;
+                margin-bottom: 0.25rem;
+            }
+        }
+    </style>
+}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<div id="content">
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-cogs mr-2"></i>Parts & Operations Management
+                </h1>
+                <p class="mb-4 text-gray-600">
+                    Manage operation codes, service parts, and their relationships for streamlined service operations.
+                </p>
+            </div>
+            <div class="dropdown no-print">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                    <i class="fas fa-plus mr-2"></i>Add New
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="@Url.Action("AddOperationCode")">
+                        <i class="fas fa-code mr-2"></i>Operation Code
+                    </a>
+                    <a class="dropdown-item" href="@Url.Action("AddServicePart")">
+                        <i class="fas fa-cog mr-2"></i>Service Part
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2 summary-card">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Operation Codes</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalOperationCodes</div>
+                                <small class="text-muted">@Model.ActiveOperationCodes active</small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-code fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2 summary-card">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Service Parts</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalServiceParts</div>
+                                <small class="text-muted">@Model.AvailableServiceParts available</small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-cogs fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Main Content Tabs -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="partsManagementTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="operation-codes-tab" data-toggle="tab" href="#operation-codes" role="tab">
+                            <i class="fas fa-code mr-1"></i>Operation Codes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="service-parts-tab" data-toggle="tab" href="#service-parts" role="tab">
+                            <i class="fas fa-cogs mr-1"></i>Service Parts
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="partsManagementTabContent">
+
+                    <!-- Operation Codes Tab -->
+                    <div class="tab-pane fade show active" id="operation-codes" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="text-primary mb-0">
+                                <i class="fas fa-code mr-2"></i>Operation Codes Management
+                            </h6>
+                            <a href="@Url.Action("AddOperationCode")" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus mr-1"></i>Add Operation Code
+                            </a>
+                        </div>
+
+                        @if (Model.OperationCodes.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-code mr-1"></i>Code</th>
+                                            <th><i class="fas fa-tag mr-1"></i>Name</th>
+                                            <th><i class="fas fa-info-circle mr-1"></i>Description</th>
+                                            <th><i class="fas fa-link mr-1"></i>Parts</th>
+                                            <th><i class="fas fa-toggle-on mr-1"></i>Status</th>
+                                            <th><i class="fas fa-tools mr-1"></i>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var operationCode in Model.OperationCodes)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <span class="font-weight-bold text-primary">@operationCode.Code</span>
+                                                </td>
+                                                <td>@operationCode.Name</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(operationCode.Description))
+                                                    {
+                                                        <span title="@operationCode.Description">
+                                                            @(operationCode.Description.Length > 50 ? operationCode.Description.Substring(0, 50) + "..." : operationCode.Description)
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No description</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-info">@operationCode.AssociatedPartsCount parts</span>
+                                                </td>
+                                                <td>
+                                                    @if (operationCode.IsActive)
+                                                    {
+                                                        <span class="status-active">Active</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="status-inactive">Inactive</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <a href="@Url.Action("EditOperationCode", new { id = operationCode.Id })"
+                                                       class="btn btn-primary btn-action" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    @if (!operationCode.IsActive)
+                                                    {
+                                                        <form method="post" action="@Url.Action("DeleteOperationCode")" style="display: inline-block;"
+                                                              onsubmit="return confirm('Are you sure you want to delete this operation code?');">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="id" value="@operationCode.Id" />
+                                                            <button type="submit" class="btn btn-danger btn-action" title="Delete">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <i class="fas fa-code fa-3x text-gray-300 mb-3"></i>
+                                <h5 class="text-gray-600">No Operation Codes Found</h5>
+                                <p class="text-muted">Get started by adding your first operation code.</p>
+                                <a href="@Url.Action("AddOperationCode")" class="btn btn-primary">
+                                    <i class="fas fa-plus mr-2"></i>Add Operation Code
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Service Parts Tab -->
+                    <div class="tab-pane fade" id="service-parts" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="text-primary mb-0">
+                                <i class="fas fa-cogs mr-2"></i>Service Parts Management
+                            </h6>
+                            <a href="@Url.Action("AddServicePart")" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus mr-1"></i>Add Service Part
+                            </a>
+                        </div>
+
+                        @if (Model.ServiceParts.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-hashtag mr-1"></i>Part Number</th>
+                                            <th><i class="fas fa-cog mr-1"></i>Part Name</th>
+                                            <th><i class="fas fa-ringgit mr-1"></i>Price</th>
+                                            <th><i class="fas fa-code mr-1"></i>Operation Codes</th>
+                                            <th><i class="fas fa-chart-bar mr-1"></i>Usage</th>
+                                            <th><i class="fas fa-toggle-on mr-1"></i>Status</th>
+                                            <th><i class="fas fa-tools mr-1"></i>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var part in Model.ServiceParts)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <span class="font-weight-bold text-primary">@part.PartNumber</span>
+                                                </td>
+                                                <td>
+                                                    <div>
+                                                        <strong>@part.PartName</strong>
+                                                        @if (!string.IsNullOrEmpty(part.PartDescription))
+                                                        {
+                                                            <br>
+
+                                                            <small class="text-muted">@part.PartDescription</small>
+                                                        }
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="font-weight-bold text-success">@part.FormattedPrice</span>
+                                                </td>
+                                                <td>
+                                                    @if (part.AssociatedOperationCodes.Any())
+                                                    {
+                                                        @foreach (var code in part.AssociatedOperationCodes)
+                                                        {
+                                                            <span class="badge badge-secondary mr-1">@code</span>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">None</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (part.UsageCount > 0)
+                                                    {
+                                                        <div>
+                                                            <small><strong>@part.UsageCount</strong> times</small><br>
+                                                            <small class="text-muted">Qty: @part.TotalQuantityUsed</small><br>
+                                                            <small class="text-muted">Last: @part.LastUsedDisplay</small>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Never used</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (part.IsAvailable)
+                                                    {
+                                                        <span class="status-available">Available</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="status-unavailable">Unavailable</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <a href="@Url.Action("EditServicePart", new { id = part.Id })"
+                                                       class="btn btn-primary btn-action" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    @if (!part.IsAvailable && part.UsageCount == 0)
+                                                    {
+                                                        <form method="post" action="@Url.Action("DeleteServicePart")" style="display: inline-block;"
+                                                              onsubmit="return confirm('Are you sure you want to delete this service part?');">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="id" value="@part.Id" />
+                                                            <button type="submit" class="btn btn-danger btn-action" title="Delete">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <i class="fas fa-cogs fa-3x text-gray-300 mb-3"></i>
+                                <h5 class="text-gray-600">No Service Parts Found</h5>
+                                <p class="text-muted">Get started by adding your first service part.</p>
+                                <a href="@Url.Action("AddServicePart")" class="btn btn-primary">
+                                    <i class="fas fa-plus mr-2"></i>Add Service Part
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/vendor/jquery/jquery.min.js"></script>
+    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="~/js/sb-admin-2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Tab persistence
+            var activeTab = localStorage.getItem('activePartsTab');
+            if (activeTab) {
+                $('#partsManagementTabs a[href="' + activeTab + '"]').tab('show');
+            }
+
+            $('#partsManagementTabs a').on('click', function (e) {
+                localStorage.setItem('activePartsTab', $(e.target).attr('href'));
+            });
+
+            // Search functionality (you can add this later)
+            $('#searchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+
+            // Confirmation dialogs
+            $('.btn-danger').on('click', function(e) {
+                if (!confirm('Are you sure you want to perform this action?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+}

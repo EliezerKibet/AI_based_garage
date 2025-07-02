@@ -1,0 +1,854 @@
+﻿@using System.Globalization;
+@using GarageManagementSystem.ViewModels;
+@model MechanicDashboardViewModel
+
+@{
+    ViewData["Title"] = "Mechanic Dashboard";
+    Layout = "~/Views/Shared/_LayoutMechanic.cshtml";
+
+    // Retrieve query string parameters via ViewContext.HttpContext
+    var searchTerm = ViewContext.HttpContext.Request.Query["searchTerm"].ToString();
+    var sortOrder = ViewContext.HttpContext.Request.Query["sortOrder"].ToString();
+
+    // Get reports from the model (Reports is List<MechanicReportViewModel>)
+    var reports = Model.Reports ?? new List<MechanicReportViewModel>();
+    var filteredReports = reports;
+
+    // Filter reports based on search term
+    if (!string.IsNullOrEmpty(searchTerm))
+    {
+        filteredReports = filteredReports
+            .Where(r => r.CarMake.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                     || r.CarModel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                     || r.ServiceDetails.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                     || r.AdditionalNotes.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    // Process car reports - if searching, only include cars with matching reports
+    var carReportsQuery = Model.Cars
+        .AsEnumerable(); // Convert to IEnumerable for in-memory filtering
+
+    if (!string.IsNullOrEmpty(searchTerm))
+    {
+        // Filter to only include cars that have reports matching the search term
+        carReportsQuery = carReportsQuery
+            .Where(car => car.Reports.Any(r =>
+                (r.DateReported.HasValue) &&
+                (r.ServiceDetails.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                 car.Make.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                 car.Model.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                 r.AdditionalNotes.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            ));
+    }
+    else
+    {
+        // If not searching, only include cars with reports
+        carReportsQuery = carReportsQuery
+            .Where(car => car.Reports.Any(r => r.DateReported.HasValue));
+    }
+
+    // Create the final grouping
+    var reportsByCar = carReportsQuery
+        .Select(car => new
+        {
+            Car = car,
+            Reports = !string.IsNullOrEmpty(searchTerm)
+                ? car.Reports
+                    .Where(r => r.DateReported.HasValue &&
+                              (r.ServiceDetails.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                               car.Make.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                               car.Model.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                               r.AdditionalNotes.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
+                    .OrderByDescending(r => r.DateReported)
+                    .ToList()
+                : car.Reports
+                    .Where(r => r.DateReported.HasValue)
+                    .OrderByDescending(r => r.DateReported)
+                    .ToList()
+        })
+        .ToList();
+
+    // Count total reports for statistics
+    var totalReports = reportsByCar.Sum(c => c.Reports.Count);
+    var recentReports = reportsByCar.SelectMany(c => c.Reports).Count(r => r.DateReported >= DateTime.Now.AddDays(-7));
+    var totalRevenue = reportsByCar.SelectMany(c => c.Reports).Sum(r => r.TotalPrice);
+
+    // Determine if we're showing search results
+    var isSearching = !string.IsNullOrEmpty(searchTerm);
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fc;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+
+        .card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+            }
+
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid rgba(0,0,0,.125);
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px 10px 0 0 !important;
+        }
+
+        .btn-primary {
+            background-color: #4e73df;
+            border-color: #4e73df;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background-color: #2e59d9;
+                border-color: #2e59d9;
+                transform: translateY(-2px);
+            }
+
+        .btn-outline-secondary {
+            color: #5a5c69;
+            border-color: #dddfeb;
+            transition: all 0.3s ease;
+        }
+
+            .btn-outline-secondary:hover {
+                color: #4e73df;
+                border-color: #4e73df;
+                background-color: transparent;
+            }
+
+        .btn-warning {
+            background-color: #f6c23e;
+            border-color: #f6c23e;
+            transition: all 0.3s ease;
+        }
+
+            .btn-warning:hover {
+                background-color: #f4b619;
+                border-color: #f4b619;
+            }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+            .dashboard-header h1 {
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+
+            .dashboard-header p {
+                opacity: 0.8;
+                font-size: 1.1rem;
+                margin-bottom: 0;
+            }
+
+        .report-details {
+            padding: 1.25rem;
+            background-color: #f8f9fc;
+            border-radius: 8px;
+        }
+
+        .parts-list {
+            border-left: 4px solid #4e73df;
+            padding-left: 1rem;
+        }
+
+        .parts-item {
+            padding: 0.75rem;
+            border-radius: 6px;
+            background-color: white;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(58, 59, 69, 0.15);
+        }
+
+        .text-toggle[aria-expanded="false"] .text-expanded {
+            display: none;
+        }
+
+        .text-toggle[aria-expanded="true"] .text-collapsed {
+            display: none;
+        }
+
+        .report-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-date {
+            font-weight: 600;
+            color: #5a5c69;
+        }
+
+        .total-price {
+            background-color: #1cc88a;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 700;
+            box-shadow: 0 0.125rem 0.25rem rgba(28, 200, 138, 0.4);
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+            .search-container .form-control {
+                border-radius: 50px;
+                padding-left: 3rem;
+                height: 3rem;
+            }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 0.85rem;
+            color: #858796;
+        }
+
+        @@media (max-width: 768px) {
+            .dashboard-header {
+                padding: 1.5rem;
+            }
+        }
+
+        .car-badge {
+            display: inline-block;
+            background-color: #4e73df;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background-color: #4e73df;
+            color: white;
+        }
+
+        .search-results-header {
+            background: rgba(78, 115, 223, 0.1);
+            border-left: 4px solid #4e73df;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.35rem;
+        }
+
+        .highlight {
+            background-color: rgba(255, 243, 157, 0.5);
+            padding: 0 3px;
+            border-radius: 3px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #dddfeb;
+            margin-bottom: 1.5rem;
+        }
+
+        .clear-search {
+            color: #4e73df;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+            .clear-search:hover {
+                color: #2e59d9;
+                text-decoration: underline;
+            }
+
+            .clear-search i {
+                margin-right: 0.5rem;
+            }
+
+        /* Auto-expand first car accordion when searching */
+        .search-active .accordion-button:first-child {
+            background-color: #4e73df;
+            color: white;
+        }
+
+        /* Add these new styles to your existing <style> section */
+
+.btn-info {
+    background-color: #36b9cc;
+    border-color: #36b9cc;
+    transition: all 0.3s ease;
+}
+
+.btn-info:hover {
+    background-color: #2c9faf;
+    border-color: #2c9faf;
+}
+
+/* Enhanced part details display */
+.part-details {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.part-meta {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.operation-code-badge {
+    background-color: #17a2b8;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    margin-right: 0.5rem;
+}
+
+.part-number-badge {
+    background-color: #6c757d;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+}
+
+/* Enhanced report actions */
+.report-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Enhanced service details */
+.service-section {
+    margin-bottom: 1.5rem;
+}
+
+.service-section h6 {
+    color: #4e73df;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    border-bottom: 2px solid #e3e6f0;
+    padding-bottom: 0.5rem;
+}
+
+.enhanced-parts-display {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.part-card {
+    background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
+    border: 1px solid #e3e6f0;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.part-card:hover {
+    box-shadow: 0 0.25rem 0.5rem rgba(58, 59, 69, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Responsive styles */
+@@media (max-width: 768px) {
+    .report-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .report-actions .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Print-friendly styles */
+@@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
+
+    </style>
+</head>
+
+<body>
+    <div id="content" class="py-4">
+        <div class="container-fluid">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="mb-2">Service Reports</h1>
+                        <p>View and manage all your service reports</p>
+                    </div>
+                    <div>
+                        <a href="@Url.Action("CreateMechanicReport", "Mechanic")" class="btn btn-light btn-lg">
+                            <i class="fas fa-plus me-2"></i> New Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <!-- Search form that works without JavaScript -->
+                <form method="get" action="@Url.Action("GetCarReports", "Mechanic")" class="mb-4">
+                    <div class="input-group">
+                        <span class="position-absolute ps-3 pt-2" style="z-index: 10;">
+                            <i class="fas fa-search text-gray-500"></i>
+                        </span>
+                        <input type="text" class="form-control ps-5" id="searchInput" name="searchTerm"
+                               placeholder="Search cars by make or model..."
+                               value="@ViewData["SearchTerm"]">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">
+                                Search
+                            </button>
+                            @if (!string.IsNullOrEmpty(ViewData["SearchTerm"]?.ToString()))
+                            {
+                                <a href="@Url.Action("GetCarReports", "Mechanic")" class="btn btn-outline-secondary">
+                                    Clear
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Search Results Notification -->
+            @if (isSearching)
+            {
+                <div class="search-results-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">
+                                <i class="fas fa-search me-2"></i> Search Results for "<strong>@searchTerm</strong>"
+                            </h5>
+                            <p class="mb-0 mt-1">
+                                Found @totalReports report@(totalReports != 1 ? "s" : "") across @reportsByCar.Count car@(reportsByCar.Count != 1 ? "s" : "")
+                            </p>
+                        </div>
+                        <a href="@Url.Action("GetCarReports", "Mechanic")" class="clear-search">
+                            <i class="fas fa-arrow-left"></i> Back to All Reports
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <!-- Reports Summary Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clipboard-list mr-2"></i> Reports Overview
+                    </h6>
+                    <span class="badge bg-primary rounded-pill">
+                        @totalReports Report@(totalReports != 1 ? "s" : "")
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                @(isSearching ? "Matching Cars" : "Total Cars")
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">@reportsByCar.Count</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-car fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                @(isSearching ? "Matching Reports" : "Total Reports")
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                @totalReports
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                Recent Reports
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                @recentReports
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar-week fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                @(isSearching ? "Matching Revenue" : "Total Revenue")
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                RM @totalRevenue.ToString("F2")
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Car Reports Accordion -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-car-alt mr-2"></i> @(isSearching ? "Search Results" : "Car Service Reports")
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (reportsByCar.Any())
+                    {
+                        <div class="accordion @(isSearching ? "search-active" : "")" id="accordionCarReports">
+                            @foreach (var carGroup in reportsByCar)
+                            {
+                                var carId = $"car-{carGroup.Car.Id}";
+                                <div class="accordion-item mb-3 shadow-sm">
+                                    <h2 class="accordion-header" id="heading-@carId">
+                                        <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#collapse-@carId"
+                                                aria-expanded="@(isSearching && reportsByCar.First() == carGroup ? "true" : "false")"
+                                                aria-controls="collapse-@carId">
+                                            <div class="d-flex align-items-center w-100">
+                                                <div class="me-auto">
+                                                    <i class="fas fa-car me-2"></i>
+                                                    <strong>
+                                                        @carGroup.Car.Make @carGroup.Car.Model
+                                                    </strong>
+                                                    <span class="car-badge">@carGroup.Car.LicenseNumber</span>
+                                                </div>
+                                                <span class="badge bg-secondary rounded-pill me-2">
+                                                    @carGroup.Reports.Count Report@(carGroup.Reports.Count != 1 ? "s" : "")
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse-@carId" class="accordion-collapse collapse @(isSearching && reportsByCar.First() == carGroup ? "show" : "")"
+                                         aria-labelledby="heading-@carId" data-bs-parent="#accordionCarReports">
+                                        <div class="accordion-body">
+                                            @foreach (var report in carGroup.Reports)
+                                            {
+                                                var reportId = $"{carId}-report-{report.Id}";
+                                                <div class="card mb-3 shadow-sm">
+                                                    <div class="card-header bg-light py-3">
+                                                        <div class="report-info">
+                                                            <div class="report-date">
+                                                                <i class="fas fa-calendar-day me-2"></i>
+                                                                @report.DateReported?.ToString("MMMM dd, yyyy HH:mm")
+                                                            </div>
+                                                            <span class="total-price">
+                                                                <i class="fas fa-tag me-1"></i>
+                                                                RM @report.TotalPrice.ToString("F2")
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <h5 class="text-primary">
+                                                                        <i class="fas fa-wrench me-2"></i>Service Details
+                                                                    </h5>
+                                                                    <p class="mb-0">@report.ServiceDetails</p>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <h5 class="text-primary">
+                                                                        <i class="fas fa-sticky-note me-2"></i>Additional Notes
+                                                                    </h5>
+                                                                    <p class="mb-0">@report.AdditionalNotes</p>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <h5 class="text-primary">
+                                                                        <i class="fas fa-dollar-sign me-2"></i>Service Fee
+                                                                    </h5>
+                                                                    <p class="mb-0">RM @report.ServiceFee.ToString("F2")</p>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Replace your existing parts section with this enhanced version -->
+                                                            <div class="col-md-6">
+                                                                @if (report.Parts != null && report.Parts.Any())
+                                                                {
+                                                                    <div class="service-section">
+                                                                        <h6>
+                                                                            <i class="fas fa-cogs me-2"></i>Parts Used
+                                                                        </h6>
+                                                                        <div class="enhanced-parts-display">
+                                                                            @foreach (var part in report.Parts)
+                                                                            {
+                                                                                <div class="part-card">
+                                                                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                                                                        <div class="flex-grow-1">
+                                                                                            <div class="fw-bold">@part.PartName</div>
+                                                                                            <div class="part-meta">
+                                                                                                @if (!string.IsNullOrEmpty(part.OperationCode))
+                                                                                                {
+                                                                                                    <span class="operation-code-badge">@part.OperationCode</span>
+                                                                                                }
+                                                                                                @if (!string.IsNullOrEmpty(part.PartNumber))
+                                                                                                {
+                                                                                                    <span class="part-number-badge">#@part.PartNumber</span>
+                                                                                                }
+                                                                                            </div>
+                                                                                            @if (!string.IsNullOrEmpty(part.PartDescription))
+                                                                                            {
+                                                                                                <div class="text-muted small mt-1">@part.PartDescription</div>
+                                                                                            }
+                                                                                        </div>
+                                                                                        <div class="text-end">
+                                                                                            <div class="fw-bold">Qty: @part.Quantity</div>
+                                                                                            <div class="text-muted small">RM @part.PartPrice.ToString("F2") each</div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                                                                        <span class="text-muted">Part Total:</span>
+                                                                                        <span class="badge bg-success">
+                                                                                            RM @((part.PartPrice * part.Quantity).ToString("F2"))
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                                            <div class="report-actions">
+                                                                <a href="@Url.Action("EditReport", "Mechanic", new { id = report.Id })"
+                                                                   class="btn btn-warning btn-sm">
+                                                                    <i class="fas fa-edit me-1"></i> Edit Report
+                                                                </a>
+                                                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                                        data-bs-toggle="collapse"
+                                                                        data-bs-target="#details-@reportId"
+                                                                        aria-expanded="false">
+                                                                    <i class="fas fa-info-circle me-1"></i> Details
+                                                                </button>
+                                                            </div>
+                                                            <div class="d-flex align-items-center">
+                                                                <span class="me-2 fw-bold">Total:</span>
+                                                                <span class="badge bg-success fs-6 p-2">
+                                                                    RM @report.TotalPrice.ToString("F2")
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="collapse mt-3" id="details-@reportId">
+                                                            <div class="card card-body bg-light">
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <h6 class="text-primary mb-3">
+                                                                            <i class="fas fa-info-circle me-2"></i>Report Information
+                                                                        </h6>
+                                                                        <div class="mb-2">
+                                                                            <strong>Report ID:</strong> #@report.Id
+                                                                        </div>
+                                                                        <div class="mb-2">
+                                                                            <strong>Mechanic:</strong> @report.MechanicName
+                                                                        </div>
+                                                                        <div class="mb-2">
+                                                                            <strong>Date Created:</strong> @report.DateReported?.ToString("dd/MM/yyyy HH:mm")
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <h6 class="text-primary mb-3">
+                                                                            <i class="fas fa-car me-2"></i>Vehicle Information
+                                                                        </h6>
+                                                                        <div class="mb-2">
+                                                                            <strong>Vehicle:</strong> @report.CarMake @report.CarModel (@report.CarYear)
+                                                                        </div>
+                                                                        <div class="mb-2">
+                                                                            <strong>License Plate:</strong> @carGroup.Car.LicenseNumber
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            @if (isSearching)
+                            {
+                                <div class="empty-icon">
+                                    <i class="fas fa-search text-gray-300"></i>
+                                </div>
+                                <h5 class="text-gray-700">No matching reports found</h5>
+                                <p class="text-gray-500 mb-4">We couldn't find any reports matching "<strong>@searchTerm</strong>"</p>
+                                <a href="@Url.Action("GetCarReports", "Mechanic")" class="btn btn-primary">
+                                    <i class="fas fa-arrow-left me-2"></i> Back to All Reports
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="empty-icon">
+                                    <i class="fas fa-clipboard-list text-gray-300"></i>
+                                </div>
+                                <h5 class="text-gray-700">No reports available</h5>
+                                <p class="text-gray-500">There are no service reports available at this time.</p>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Cache DOM elements
+            var searchInput = $('#searchInput');
+            var clearButton = $('.search-container .btn-outline-secondary');
+
+            // Function to highlight text in an element
+            function highlightText(element, searchTerm) {
+                if (!searchTerm || searchTerm.trim() === '') return;
+                var html = $(element).html();
+                if (!html) return;
+                var regex = new RegExp('(' + searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+                var newHtml = html.replace(regex, '<span class="highlight">$1</span>');
+                $(element).html(newHtml);
+            }
+
+            // Function to perform dynamic search with highlighting
+            function performSearch() {
+                var searchTerm = searchInput.val().trim();
+                if (searchTerm === '') return;
+                $('.accordion-button strong').each(function() {
+                    highlightText(this, searchTerm);
+                });
+                $('.service-section p').each(function() {
+                    highlightText(this, searchTerm);
+                });
+                $('.accordion-button:first').removeClass('collapsed').attr('aria-expanded', 'true');
+                $('.accordion-collapse:first').addClass('show');
+            }
+
+            // Execute search on page load if URL has search parameter
+            var urlParams = new URLSearchParams(window.location.search);
+            var initialSearch = urlParams.get('searchTerm');
+            if (initialSearch) {
+                performSearch();
+            }
+
+            // Add keyboard navigation
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' && searchInput.val().trim() !== '') {
+                    searchInput.val('');
+                    searchInput.closest('form').submit();
+                }
+                if (e.ctrlKey && e.key === 'f') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
+        });
+
+        // Enhanced keyboard shortcuts (removed print shortcut)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                window.location.href = '@Url.Action("CreateMechanicReport", "Mechanic")';
+            }
+        });
+    </script>
+</body>
+</html>

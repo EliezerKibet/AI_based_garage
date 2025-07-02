@@ -1,0 +1,48 @@
+﻿@model IEnumerable<GarageManagementSystem.ViewModels.FaultViewModel>
+
+@{
+    ViewData["Title"] = "Manage Faults";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h1 class="text-center">Manage Faults</h1>
+
+    @if (Model.Any())
+    {
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Description</th>
+                    <th>Date Reported</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var fault in Model)
+                {
+                    <tr>
+                        <td>@fault.Id</td>
+                        <td>@fault.Description</td>
+                        <td>@fault.DateReportedOn.ToShortDateString()</td>
+                        <td>@(fault.ResolutionStatus ? "Resolved" : "Unresolved")</td>
+                        <td>
+                            <form asp-action="ToggleFaultStatus" method="post">
+                                <input type="hidden" name="faultId" value="@fault.Id" />
+                                <button type="submit" class="btn btn-sm @(fault.ResolutionStatus ? "btn-warning" : "btn-success")">
+                                    @(fault.ResolutionStatus ? "Mark Unresolved" : "Mark Resolved")
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="text-center">No faults to manage.</p>
+    }
+</div>

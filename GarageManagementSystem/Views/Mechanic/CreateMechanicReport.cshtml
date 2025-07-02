@@ -1,0 +1,607 @@
+﻿@using System.Globalization
+@using GarageManagementSystem.ViewModels
+@model MechanicDashboardViewModel
+
+@{
+    ViewData["Title"] = "Create Mechanic Report";
+    Layout = "~/Views/Shared/_LayoutMechanic.cshtml";
+}
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Garage Management System">
+    <meta name="author" content="">
+
+    <title>@ViewData["Title"]</title>
+
+    <!-- Custom fonts and styles -->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet">
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+
+    <style>
+        html, body, #wrapper, #content-wrapper, #content {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        .receipt-section {
+            border: 1px solid #e3e6f0;
+            border-radius: 0.35rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: #f8f9fc;
+        }
+
+        .receipt-header {
+            background-color: #4e73df;
+            color: white;
+            padding: 0.75rem 1rem;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            border-radius: 0.35rem 0.35rem 0 0;
+        }
+
+        .part-selection-area {
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 0.25rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .available-parts {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            background-color: white;
+        }
+
+        .part-option {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+            .part-option:hover {
+                background-color: #f5f5f5;
+            }
+
+            .part-option:last-child {
+                border-bottom: none;
+            }
+
+        .selected-part {
+            background-color: #e8f5e8 !important;
+            border-left: 3px solid #28a745;
+        }
+    </style>
+</head>
+
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h4 class="m-0 font-weight-bold text-primary">Create Mechanic Report</h4>
+                </div>
+                <div class="card-body">
+                    <form id="mechanicReportForm" asp-action="CreateMechanicReport" method="post">
+
+                        <!-- Basic Service Information -->
+                        <div class="receipt-section">
+                            <div class="receipt-header">
+                                <h5 class="m-0"><i class="fas fa-car"></i> Service Information</h5>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Assigned Car Selection -->
+                                    <div class="mb-3">
+                                        <label for="SelectedCarId" class="form-label"><strong>Select Assigned Car</strong></label>
+                                        <select id="SelectedCarId" name="selectedCarId" class="form-select" required>
+                                            @if (Model.AssignedCars?.Any() == true)
+                                            {
+                                                @foreach (var car in Model.AssignedCars)
+                                                {
+                                                    <option value="@car.CarId">@car.CarMake @car.CarModel (@car.LicenseNumber)</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option disabled selected>No assigned cars available</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <!-- Payment Mode -->
+                                    <div class="mb-3">
+                                        <label for="paymentMode" class="form-label"><strong>Payment Mode</strong></label>
+                                        <select id="paymentMode" name="paymentMode" class="form-select">
+                                            <option value="Cash" selected>Cash</option>
+                                            <option value="Card">Card</option>
+                                            <option value="Bank Transfer">Bank Transfer</option>
+                                            <option value="Cheque">Cheque</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Tax Rate -->
+                                    <div class="mb-3">
+                                        <label for="taxRate" class="form-label"><strong>Tax Rate (%)</strong></label>
+                                        <input type="number" id="taxRate" name="taxRate" class="form-control" step="0.01" min="0" max="100" value="6.00" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <!-- Customer Request -->
+                                    <div class="mb-3">
+                                        <label for="customerRequest" class="form-label"><strong>Customer Request</strong></label>
+                                        <textarea id="customerRequest" name="customerRequest" class="form-control" rows="3" placeholder="What did the customer request?"></textarea>
+                                    </div>
+
+                                    <!-- Action Taken -->
+                                    <div class="mb-3">
+                                        <label for="actionTaken" class="form-label"><strong>Action Taken</strong></label>
+                                        <textarea id="actionTaken" name="actionTaken" class="form-control" rows="3" placeholder="What actions were performed?"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Service Details -->
+                            <div class="mb-3">
+                                <label for="serviceDetails" class="form-label"><strong>Service Details</strong></label>
+                                <textarea id="serviceDetails" name="serviceDetails" class="form-control" rows="4" required placeholder="Detailed description of service performed..."></textarea>
+                                <div class="alert alert-danger d-none mt-2" id="serviceError">Service details cannot be empty.</div>
+                            </div>
+
+                            <!-- Additional Notes -->
+                            <div class="mb-3">
+                                <label for="additionalNotes" class="form-label"><strong>Additional Notes</strong></label>
+                                <textarea id="additionalNotes" name="additionalNotes" class="form-control" rows="3" placeholder="Any additional notes or observations..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Parts Used Section -->
+                        <div class="receipt-section">
+                            <div class="receipt-header">
+                                <h5 class="m-0"><i class="fas fa-cogs"></i> Parts Information</h5>
+                            </div>
+
+                            <!-- Part Selection Area -->
+                            <div class="part-selection-area">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="operationCodeSelect" class="form-label"><strong>Select Operation Code</strong></label>
+                                        <select id="operationCodeSelect" class="form-select">
+                                            <option value="">-- Select Operation Code --</option>
+                                        </select>
+                                        <small class="text-muted">Choose an operation code to see available parts</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label"><strong>Available Parts</strong></label>
+                                        <div id="availablePartsList" class="available-parts">
+                                            <div class="text-muted text-center p-3">
+                                                Select an operation code to view available parts
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="partsContainer" class="mb-3"></div>
+                            <button type="button" class="btn btn-success mb-3" onclick="addPartField()">
+                                <i class="fas fa-plus"></i> Add Custom Part
+                            </button>
+                        </div>
+
+                        <!-- Inspection Items Section (Optional) -->
+                        <div class="receipt-section">
+                            <div class="receipt-header">
+                                <h5 class="m-0"><i class="fas fa-search"></i> Inspection Results (Optional)</h5>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Add inspection results if applicable. This section is optional.</small>
+                            </div>
+                            <div id="inspectionContainer" class="mb-3"></div>
+                            <button type="button" class="btn btn-outline-success mb-3" onclick="addInspectionField()">
+                                <i class="fas fa-plus"></i> Add Inspection Item
+                            </button>
+                        </div>
+
+                        <!-- Next Service Information -->
+                        <div class="receipt-section">
+                            <div class="receipt-header">
+                                <h5 class="m-0"><i class="fas fa-calendar-alt"></i> Next Service Information</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="nextServiceKm" class="form-label"><strong>Next Service KM</strong></label>
+                                        <input type="number" id="nextServiceKm" name="nextServiceKm" class="form-control" min="0" placeholder="e.g. 19300" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="nextServiceDate" class="form-label"><strong>Next Service Date</strong></label>
+                                        <input type="date" id="nextServiceDate" name="nextServiceDate" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="serviceFee" class="form-label"><strong>Service Fee</strong></label>
+                                        <input type="number" id="serviceFee" name="serviceFee" class="form-control" step="0.01" min="0" required />
+                                        <div class="alert alert-danger d-none mt-2" id="serviceFeeError">Service fee must be positive.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Next Service Advice -->
+                            <div class="mb-3">
+                                <label for="nextServiceAdvice" class="form-label"><strong>Next Service Advice</strong></label>
+                                <textarea id="nextServiceAdvice" name="nextServiceAdvice" class="form-control" rows="2" placeholder="Recommendations for next service..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Price Summary -->
+                        <div class="receipt-section">
+                            <div class="receipt-header">
+                                <h5 class="m-0"><i class="fas fa-calculator"></i> Price Summary</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 offset-md-6">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Parts Subtotal:</strong></td>
+                                            <td class="text-right" id="partsSubtotal">RM 0.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Service Fee:</strong></td>
+                                            <td class="text-right" id="serviceFeeDisplay">RM 0.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Tax Amount:</strong></td>
+                                            <td class="text-right" id="taxAmount">RM 0.00</td>
+                                        </tr>
+                                        <tr class="table-primary">
+                                            <td><strong>Total Amount:</strong></td>
+                                            <td class="text-right"><strong id="totalAmount">RM 0.00</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-save"></i> Submit Report
+                            </button>
+                            <button type="button" id="cancelMechanicReportBtn" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let partIndex = 0;
+        let labourIndex = 0;
+        let inspectionIndex = 0;
+        let operationCodes = [];
+        let availableParts = [];
+
+        // Load operation codes on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            loadOperationCodes();
+            // Remove the automatic addition of labour and inspection fields
+            // addLabourField();
+            // addInspectionField();
+        });
+
+        // Load operation codes from the server
+        async function loadOperationCodes() {
+            try {
+                const response = await fetch('/Mechanic/GetActiveOperationCodes');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                operationCodes = await response.json();
+                console.log('Loaded operation codes:', operationCodes);
+
+                const select = document.getElementById('operationCodeSelect');
+                select.innerHTML = '<option value="">-- Select Operation Code --</option>';
+
+                operationCodes.forEach(code => {
+                    const option = document.createElement('option');
+                    option.value = code.code;
+                    option.textContent = `${code.code} - ${code.name}`;
+                    option.title = code.description || '';
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading operation codes:', error);
+                alert('Failed to load operation codes. Please refresh the page.');
+            }
+        }
+
+        // Handle operation code selection
+        document.getElementById('operationCodeSelect').addEventListener('change', async function() {
+            const selectedCode = this.value;
+            const partsListContainer = document.getElementById('availablePartsList');
+
+            console.log('Selected operation code:', selectedCode);
+
+            if (!selectedCode) {
+                partsListContainer.innerHTML = '<div class="text-muted text-center p-3">Select an operation code to view available parts</div>';
+                return;
+            }
+
+            partsListContainer.innerHTML = '<div class="text-center p-3"><i class="fas fa-spinner fa-spin"></i> Loading parts...</div>';
+
+            try {
+                const url = `/Mechanic/GetPartsByOperationCode?operationCode=${encodeURIComponent(selectedCode)}`;
+                console.log('Fetching parts from URL:', url);
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                availableParts = await response.json();
+                console.log('Loaded parts:', availableParts);
+
+                if (availableParts.length === 0) {
+                    partsListContainer.innerHTML = '<div class="text-muted text-center p-3">No parts available for this operation code</div>';
+                    return;
+                }
+
+                let partsHtml = '';
+                availableParts.forEach(part => {
+                    partsHtml += `
+                        <div class="part-option" data-part-number="${part.partNumber}" data-part-name="${part.partName}" data-price="${part.price}">
+                            <div class="fw-bold">${part.partName}</div>
+                            <div class="small text-muted">Part #: ${part.partNumber} | Price: ${part.price.toFixed(2)}</div>
+                        </div>
+                    `;
+                });
+
+                partsListContainer.innerHTML = partsHtml;
+
+                // Add click handlers to part options
+                document.querySelectorAll('.part-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Remove previous selection
+                        document.querySelectorAll('.part-option').forEach(opt => opt.classList.remove('selected-part'));
+                        // Add selection to clicked part
+                        this.classList.add('selected-part');
+
+                        // Add part to form
+                        addPartFromSelection(
+                            selectedCode,
+                            this.dataset.partNumber,
+                            this.dataset.partName,
+                            parseFloat(this.dataset.price)
+                        );
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error loading parts:', error);
+                partsListContainer.innerHTML = '<div class="text-danger text-center p-3">Error loading parts. Please try again.</div>';
+                alert('Failed to load parts. Please check the console for details.');
+            }
+        });
+
+        // Add selected part to the form
+        function addPartFromSelection(operationCode, partNumber, partName, price) {
+            const partHtml = `
+                <div class="card mb-3 part-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Operation Code</label>
+                                <input name="Parts[${partIndex}].OperationCode" class="form-control" value="${operationCode}" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Part Number</label>
+                                <input name="Parts[${partIndex}].PartNumber" class="form-control" value="${partNumber}" readonly />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Part Name/Description</label>
+                                <input name="Parts[${partIndex}].PartName" class="form-control part-name" value="${partName}" required readonly />
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Part Price (RM)</label>
+                                <input name="Parts[${partIndex}].PartPrice" class="form-control part-price" type="number" step="0.01" min="0" value="${price}" required onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Quantity</label>
+                                <input name="Parts[${partIndex}].Quantity" class="form-control part-quantity" type="number" min="1" value="1" required onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-part">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            document.getElementById("partsContainer").insertAdjacentHTML("beforeend", partHtml);
+            partIndex++;
+            calculateTotals();
+
+            // Clear selection
+            document.querySelectorAll('.part-option').forEach(opt => opt.classList.remove('selected-part'));
+        }
+
+        function addPartField() {
+            var partHtml = `
+                <div class="card mb-3 part-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Operation Code</label>
+                                <input name="Parts[${partIndex}].OperationCode" class="form-control" placeholder="e.g. FLRS10" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Part Number</label>
+                                <input name="Parts[${partIndex}].PartNumber" class="form-control" placeholder="e.g. 15601-P2A12" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Part Name/Description</label>
+                                <input name="Parts[${partIndex}].PartName" class="form-control part-name" required placeholder="e.g. Oil Filter" />
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Part Price (USD)</label>
+                                <input name="Parts[${partIndex}].PartPrice" class="form-control part-price" type="number" step="0.01" min="0" required onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Quantity</label>
+                                <input name="Parts[${partIndex}].Quantity" class="form-control part-quantity" type="number" min="1" required onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-part">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById("partsContainer").insertAdjacentHTML("beforeend", partHtml);
+            partIndex++;
+        }
+
+        function addLabourField() {
+            var labourHtml = `
+                <div class="card mb-3 labour-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Operation Code</label>
+                                <input name="LabourItems[${labourIndex}].OperationCode" class="form-control" required placeholder="e.g. PART1" />
+                            </div>
+                            <div class="col-md-9">
+                                <label class="form-label">Description</label>
+                                <input name="LabourItems[${labourIndex}].Description" class="form-control" required placeholder="e.g. Additional Part Listing" />
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Amount (w/o Tax)</label>
+                                <input name="LabourItems[${labourIndex}].TotalAmountWithoutTax" class="form-control labour-amount" type="number" step="0.01" min="0" required onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tax Rate (%)</label>
+                                <input name="LabourItems[${labourIndex}].TaxRate" class="form-control labour-tax-rate" type="number" step="0.01" min="0" value="6.00" onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-labour">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById("labourContainer").insertAdjacentHTML("beforeend", labourHtml);
+            labourIndex++;
+        }
+
+        function addInspectionField() {
+            var inspectionHtml = `
+                <div class="card mb-3 inspection-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Item Name</label>
+                                <input name="InspectionItems[${inspectionIndex}].ItemName" class="form-control" required placeholder="e.g. Tyre tread depth (mm)" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Result</label>
+                                <input name="InspectionItems[${inspectionIndex}].Result" class="form-control" required placeholder="e.g. 6MM" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Status</label>
+                                <select name="InspectionItems[${inspectionIndex}].Status" class="form-select" required>
+                                    <option value="OK">OK</option>
+                                    <option value="WARNING">WARNING</option>
+                                    <option value="REPLACE">REPLACE</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-inspection">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <label class="form-label">Recommendations</label>
+                                <textarea name="InspectionItems[${inspectionIndex}].Recommendations" class="form-control" rows="2" placeholder="Any recommendations for this item..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById("inspectionContainer").insertAdjacentHTML("beforeend", inspectionHtml);
+            inspectionIndex++;
+        }
+
+        // Event listeners for removing items
+        document.getElementById("partsContainer").addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-part") || e.target.closest(".remove-part")) {
+                e.target.closest(".part-item").remove();
+                calculateTotals();
+            }
+        });
+
+        document.getElementById("inspectionContainer").addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-inspection") || e.target.closest(".remove-inspection")) {
+                e.target.closest(".inspection-item").remove();
+            }
+        });
+
+        // Calculate totals
+        function calculateTotals() {
+            let partsTotal = 0;
+
+            // Calculate parts total
+            document.querySelectorAll(".part-item").forEach(item => {
+                const price = parseFloat(item.querySelector(".part-price").value) || 0;
+                const quantity = parseFloat(item.querySelector(".part-quantity").value) || 0;
+                partsTotal += price * quantity;
+            });
+
+            const serviceFee = parseFloat(document.getElementById("serviceFee").value) || 0;
+            const taxRate = parseFloat(document.getElementById("taxRate").value) || 0;
+            const subtotal = partsTotal;
+            const taxAmount = subtotal * (taxRate / 100);
+            const total = subtotal + serviceFee + taxAmount;
+
+            // Update display
+            document.getElementById("partsSubtotal").textContent = `${partsTotal.toFixed(2)}`;
+            document.getElementById("serviceFeeDisplay").textContent = `${serviceFee.toFixed(2)}`;
+            document.getElementById("taxAmount").textContent = `${taxAmount.toFixed(2)}`;
+            document.getElementById("totalAmount").textContent = `${total.toFixed(2)}`;
+        }
+
+        // Update calculations when service fee changes
+        document.getElementById("serviceFee").addEventListener("input", calculateTotals);
+        document.getElementById("taxRate").addEventListener("input", calculateTotals);
+    </script>
+}

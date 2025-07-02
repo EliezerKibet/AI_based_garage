@@ -1,0 +1,28 @@
+﻿@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animated {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+.fadeIn {
+    animation-name: fadeIn;
+}
+
+.faster {
+    animation-duration: 0.3s;
+}
+
+.highlight {
+    transition: background-color 0.3s ease;
+}

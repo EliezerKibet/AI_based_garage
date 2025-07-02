@@ -1,0 +1,229 @@
+﻿@model GarageManagementSystem.ViewModels.OperationCodeViewModel
+
+@{
+    ViewData["Title"] = "Add Operation Code";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <link href="~/css/sb-admin-2.css" rel="stylesheet" />
+    <style>
+        .form-group label {
+            font-weight: 600;
+            color: #5a5c69;
+        }
+
+        .form-control:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        .btn-primary {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+
+            .btn-primary:hover {
+                background-color: #2e59d9;
+                border-color: #2653d4;
+            }
+
+        .text-primary {
+            color: #4e73df !important;
+        }
+    </style>
+}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<div id="content">
+    <div class="container-fluid">
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-code mr-2"></i>Add Operation Code
+                </h1>
+                <p class="mb-4 text-gray-600">
+                    Create a new operation code for categorizing service operations and parts.
+                </p>
+            </div>
+            <a href="@Url.Action("PartsManagement")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Management
+            </a>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-xl-8 col-lg-10">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-plus mr-2"></i>Operation Code Details
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="AddOperationCode" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Code" class="form-label">
+                                            <i class="fas fa-code mr-1"></i>Operation Code *
+                                        </label>
+                                        <input asp-for="Code" class="form-control" placeholder="e.g., BRKS20, TIRE30" maxlength="10" style="text-transform: uppercase;" />
+                                        <span asp-validation-for="Code" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Name" class="form-label">
+                                            <i class="fas fa-tag mr-1"></i>Operation Name *
+                                        </label>
+                                        <input asp-for="Name" class="form-control" placeholder="e.g., Brake Service, Tire Installation" maxlength="100" />
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Description" class="form-label">
+                                    <i class="fas fa-info-circle mr-1"></i>Description
+                                </label>
+                                <textarea asp-for="Description" class="form-control" rows="4"
+                                          placeholder="Detailed description of what this operation code covers..." maxlength="500"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                                <small class="form-text text-muted">
+                            </div>
+
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input asp-for="IsActive" type="checkbox" class="custom-control-input" id="isActiveCheck" checked />
+                                    <label class="custom-control-label" for="isActiveCheck">
+                                        <i class="fas fa-toggle-on mr-1"></i>Active Operation Code
+                                    </label>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Only active operation codes will be available for use in service reports
+                                </small>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="form-group mb-0">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-2"></i>Create Operation Code
+                                </button>
+                                <a href="@Url.Action("PartsManagement")" class="btn btn-secondary ml-2">
+                                    <i class="fas fa-times mr-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/vendor/jquery/jquery.min.js"></script>
+    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="~/js/sb-admin-2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Auto-uppercase operation code
+            $('#Code').on('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+
+            // Character counter for description
+            $('#Description').on('input', function() {
+                var maxLength = 500;
+                var currentLength = $(this).val().length;
+                var remaining = maxLength - currentLength;
+
+                if (!$('#char-counter').length) {
+                    $(this).after('<small id="char-counter" class="form-text text-muted"></small>');
+                }
+
+                $('#char-counter').text(remaining + ' characters remaining')
+                    .toggleClass('text-danger', remaining < 50)
+                    .toggleClass('text-warning', remaining >= 50 && remaining < 100)
+                    .toggleClass('text-muted', remaining >= 100);
+            });
+
+            // Form validation
+            $('form').on('submit', function(e) {
+                var code = $('#Code').val().trim();
+                var name = $('#Name').val().trim();
+
+                if (!code || !name) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields (marked with *)');
+                    return false;
+                }
+
+                if (code.length < 3) {
+                    e.preventDefault();
+                    alert('Operation code must be at least 3 characters long');
+                    $('#Code').focus();
+                    return false;
+                }
+            });
+
+            // Real-time validation feedback
+            $('#Code, #Name').on('blur', function() {
+                var $this = $(this);
+                var value = $this.val().trim();
+
+                if (value.length === 0) {
+                    $this.addClass('is-invalid').removeClass('is-valid');
+                } else if ($this.attr('id') === 'Code' && value.length < 3) {
+                    $this.addClass('is-invalid').removeClass('is-valid');
+                } else {
+                    $this.addClass('is-valid').removeClass('is-invalid');
+                }
+            });
+        });
+    </script>
+
+    @{
+        Html.RenderPartial("_ValidationScriptsPartial");
+    }
+}

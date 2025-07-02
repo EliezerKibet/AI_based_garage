@@ -1,0 +1,350 @@
+﻿@model GarageManagementSystem.ViewModels.ServicePartViewModel
+
+@{
+    ViewData["Title"] = "Add Service Part";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <link href="~/css/sb-admin-2.css" rel="stylesheet" />
+    <style>
+        .form-group label {
+            font-weight: 600;
+            color: #5a5c69;
+        }
+
+        .form-control:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        .btn-primary {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+
+            .btn-primary:hover {
+                background-color: #2e59d9;
+                border-color: #2653d4;
+            }
+
+        .text-primary {
+            color: #4e73df !important;
+        }
+
+        .currency-input {
+            position: relative;
+        }
+
+            .currency-input .form-control {
+                padding-left: 2.5rem;
+            }
+
+        .currency-symbol {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-weight: 600;
+            z-index: 5;
+        }
+
+        .is-valid {
+            border-color: #1cc88a;
+        }
+
+        .is-invalid {
+            border-color: #e74a3b;
+        }
+
+        .help-section {
+            background-color: #f8f9fc;
+            border-left: 4px solid #4e73df;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<div id="content">
+    <div class="container-fluid">
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-cog mr-2"></i>Add Service Part
+                </h1>
+                <p class="mb-4 text-gray-600">
+                    Add a new service part to your inventory management system.
+                </p>
+            </div>
+            <a href="@Url.Action("PartsManagement")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Management
+            </a>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-xl-8 col-lg-10">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-plus mr-2"></i>Service Part Details
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="AddServicePart" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <!-- Display Validation Summary -->
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger">
+                                    <h6><i class="fas fa-exclamation-triangle mr-2"></i>Please correct the following errors:</h6>
+                                    <asp:ValidationSummary />
+                                </div>
+                            }
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="PartNumber" class="form-label">
+                                            <i class="fas fa-hashtag mr-1"></i>Part Number *
+                                        </label>
+                                        <input asp-for="PartNumber" class="form-control" placeholder="e.g., 15601-P2A12" maxlength="50" />
+                                        <span asp-validation-for="PartNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="PartName" class="form-label">
+                                            <i class="fas fa-cog mr-1"></i>Part Name *
+                                        </label>
+                                        <input asp-for="PartName" class="form-control" placeholder="e.g., Oil Filter Element" maxlength="200" />
+                                        <span asp-validation-for="PartName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="PartDescription" class="form-label">
+                                    <i class="fas fa-info-circle mr-1"></i>Part Description
+                                </label>
+                                <textarea asp-for="PartDescription" class="form-control" rows="3"
+                                          placeholder="Detailed description of the part, specifications, compatibility..." maxlength="500"></textarea>
+                                <span asp-validation-for="PartDescription" class="text-danger"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Price" class="form-label">
+                                            <i class="fas fa-ringgit mr-1"></i>Price (RM) *
+                                        </label>
+                                        <div class="currency-input">
+                                            <span class="currency-symbol">RM</span>
+                                            <input asp-for="Price" type="number" step="0.01" min="0.01" max="99999.99"
+                                                   class="form-control" placeholder="0.00" />
+                                        </div>
+                                        <span asp-validation-for="Price" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="fas fa-toggle-on mr-1"></i>Availability Status
+                                        </label>
+                                        <div class="custom-control custom-checkbox mt-2">
+                                            <input asp-for="IsAvailable" type="checkbox" class="custom-control-input" id="isAvailableCheck" checked />
+                                            <label class="custom-control-label" for="isAvailableCheck">
+                                                Part is Available for Use
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="form-group mb-0">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-2"></i>Create Service Part
+                                </button>
+                                <a href="@Url.Action("PartsManagement")" class="btn btn-secondary ml-2">
+                                    <i class="fas fa-times mr-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/vendor/jquery/jquery.min.js"></script>
+    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="~/js/sb-admin-2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Auto-uppercase part number
+            $('#PartNumber').on('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+
+            // Character counter for description
+            $('#PartDescription').on('input', function() {
+                var maxLength = 500;
+                var currentLength = $(this).val().length;
+                var remaining = maxLength - currentLength;
+
+                if (!$('#desc-char-counter').length) {
+                    $(this).after('<small id="desc-char-counter" class="form-text text-muted"></small>');
+                }
+
+                $('#desc-char-counter').text(remaining + ' characters remaining')
+                    .toggleClass('text-danger', remaining < 50)
+                    .toggleClass('text-warning', remaining >= 50 && remaining < 100)
+                    .toggleClass('text-muted', remaining >= 100);
+            });
+
+            // Price formatting
+            $('#Price').on('blur', function() {
+                var value = parseFloat($(this).val());
+                if (!isNaN(value) && value > 0) {
+                    $(this).val(value.toFixed(2));
+                }
+            });
+
+            // Form validation
+            $('form').on('submit', function(e) {
+                var partNumber = $('#PartNumber').val().trim();
+                var partName = $('#PartName').val().trim();
+                var price = parseFloat($('#Price').val());
+
+                if (!partNumber || !partName) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields (marked with *)');
+                    return false;
+                }
+
+                if (partNumber.length < 3) {
+                    e.preventDefault();
+                    alert('Part number must be at least 3 characters long');
+                    $('#PartNumber').focus();
+                    return false;
+                }
+
+                if (isNaN(price) || price <= 0) {
+                    e.preventDefault();
+                    alert('Please enter a valid price greater than 0');
+                    $('#Price').focus();
+                    return false;
+                }
+            });
+
+            // Real-time validation feedback
+            $('#PartNumber, #PartName, #Price').on('blur', function() {
+                var $this = $(this);
+                var value = $this.val().trim();
+
+                if ($this.attr('id') === 'Price') {
+                    var numValue = parseFloat(value);
+                    if (isNaN(numValue) || numValue <= 0) {
+                        $this.addClass('is-invalid').removeClass('is-valid');
+                    } else {
+                        $this.addClass('is-valid').removeClass('is-invalid');
+                    }
+                } else {
+                    if (value.length === 0) {
+                        $this.addClass('is-invalid').removeClass('is-valid');
+                    } else if ($this.attr('id') === 'PartNumber' && value.length < 3) {
+                        $this.addClass('is-invalid').removeClass('is-valid');
+                    } else {
+                        $this.addClass('is-valid').removeClass('is-invalid');
+                    }
+                }
+            });
+
+            // Price input validation
+            $('#Price').on('input', function() {
+                var value = $(this).val();
+                // Remove any non-numeric characters except decimal point
+                var cleanValue = value.replace(/[^0-9.]/g, '');
+
+                // Ensure only one decimal point
+                var parts = cleanValue.split('.');
+                if (parts.length > 2) {
+                    cleanValue = parts[0] + '.' + parts.slice(1).join('');
+                }
+
+                // Limit to 2 decimal places
+                if (parts[1] && parts[1].length > 2) {
+                    cleanValue = parts[0] + '.' + parts[1].substring(0, 2);
+                }
+
+                $(this).val(cleanValue);
+            });
+        });
+
+        // Quick fill examples
+        function fillExample1() {
+            $('#PartNumber').val('15601-P2A12');
+            $('#PartName').val('ELEMENT S/A OIL FILTER');
+            $('#PartDescription').val('Standard oil filter element for Honda vehicles. High-quality filtration media ensures optimal engine protection and performance.');
+            $('#Price').val('11.90');
+            $('#IsAvailable').prop('checked', true);
+        }
+
+        function fillExample2() {
+            $('#PartNumber').val('43022-S5A-000');
+            $('#PartName').val('BRAKE PAD SET FRONT');
+            $('#PartDescription').val('Front brake pad set - ceramic compound for superior stopping power and reduced brake dust. Compatible with various Honda models.');
+            $('#Price').val('85.00');
+            $('#IsAvailable').prop('checked', true);
+        }
+    </script>
+
+    @{
+        Html.RenderPartial("_ValidationScriptsPartial");
+    }
+}

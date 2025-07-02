@@ -1,0 +1,88 @@
+﻿@using GarageManagementSystem.ViewModels;
+@model AppointmentViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Appointment</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white text-center">
+                <h3 class="mb-0">Edit Appointment</h3>
+            </div>
+            <div class="card-body">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                }
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                }
+
+                <form asp-action="EditAppointment" method="post">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label for="CarId" class="form-label fw-bold">Select Car</label>
+                        <select class="form-select" id="CarId" name="CarId" asp-for="CarId" required>
+                            <option value="">-- Select a Car --</option>
+                            @foreach (var car in Model.Cars)
+                            {
+                                <option value="@car.Id" selected="@(car.Id == Model.CarId)">
+                                    @car.Make @car.Model (@car.LicenseNumber)
+                                </option>
+                            }
+                        </select>
+                        <span asp-validation-for="CarId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="AppointmentDate" class="form-label fw-bold">Appointment Date</label>
+                        <input type="date" class="form-control" id="AppointmentDate" name="AppointmentDate"
+                               value="@Model.AppointmentDate.ToString("yyyy-MM-dd")" required>
+                        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="AppointmentTime" class="form-label fw-bold">Appointment Time</label>
+                        <select class="form-select" asp-for="AppointmentTime" required>
+                            <option value="">-- Select Time --</option>
+                            @for (var hour = 8; hour < 18; hour++)
+                            {
+                                for (var min = 0; min < 60; min += 30)
+                                {
+                                    var time = new TimeSpan(hour, min, 0).ToString(@"hh\:mm");
+                                    <option value="@time" selected="@(time == Model.AppointmentTime)">@time</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="AppointmentTime" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Notes" class="form-label fw-bold">Notes (Optional)</label>
+                        <textarea class="form-control" id="Notes" asp-for="Notes" placeholder="Any additional details..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">Update Appointment</button>
+                </form>
+
+                <hr>
+
+                <form asp-action="DeleteAppointment" method="post" onsubmit="return confirm('Are you sure you want to delete this appointment?');">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger w-100">Delete Appointment</button>
+                </form>
+
+                <a href="/Customer/BookAppointment" class="btn btn-secondary mt-3 w-100">Back to Appointments</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

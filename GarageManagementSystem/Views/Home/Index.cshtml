@@ -1,0 +1,19 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<Users> UserManager
+
+@{
+    ViewData["Title"] = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var user = await UserManager.GetUserAsync(User);
+    var fullName = user?.FullName ?? "Guest";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h2>Welcome, @fullName!</h2>
+            <p>We're glad to have you back</p>
+        </div>
+    </div>
+</div>

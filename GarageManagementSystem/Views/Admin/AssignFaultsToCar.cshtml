@@ -1,0 +1,65 @@
+﻿@using GarageManagementSystem.ViewModels
+@model FaultAssignmentViewModel
+
+@{
+    ViewData["Title"] = "Assign Mechanic to Car";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Assign Mechanic to Car</h2>
+
+<!-- Display validation errors -->
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+<!-- Display alert message if car is already assigned -->
+@if (TempData["AlertMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @TempData["AlertMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Success message -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="AssignFaultsToCar" method="post">
+    <div class="form-group">
+        <label for="MechanicId">Select Mechanic</label>
+        <select asp-for="MechanicId" class="form-control" asp-items="Model.Mechanics">
+            <option value="">--Select Mechanic--</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Faults for Car @Model.CarId</label>
+        <ul class="list-group">
+            @foreach (var fault in Model.Faults)
+            {
+                <li class="list-group-item">
+                    <strong>@fault.Description</strong><br />
+                    Date Reported: @fault.DateReportedOn<br />
+                    Status: @(fault.ResolutionStatus ? "Resolved" : "Not Resolved")
+                </li>
+            }
+        </ul>
+    </div>
+
+    <!-- Hidden input for CarId -->
+    <input asp-for="CarId" type="hidden" />
+
+    <button type="submit" class="btn btn-primary">Assign Mechanic</button>
+</form>

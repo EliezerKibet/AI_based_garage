@@ -1,0 +1,574 @@
+﻿@using System.Linq
+@using GarageManagementSystem.Controllers
+@using Microsoft.AspNetCore.Html
+@using System.Text.RegularExpressions
+@model AdminSearchViewModel
+
+@functions {
+    public HtmlString HighlightMatch(string text, string query)
+    {
+        if (string.IsNullOrEmpty(query) || string.IsNullOrEmpty(text))
+            return new HtmlString(text ?? string.Empty);
+
+        var pattern = Regex.Escape(query);
+        var highlighted = Regex.Replace(
+            text,
+            pattern,
+            match => $"<mark class=\"highlight-text\">{match.Value}</mark>",
+            RegexOptions.IgnoreCase);
+
+        return new HtmlString(highlighted);
+    }
+
+    public string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "scheduled" => "badge-primary",
+            "completed" => "badge-success",
+            "cancelled" => "badge-danger",
+            "pending" => "badge-warning",
+            _ => "badge-secondary",
+        };
+    }
+}
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Search Results";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>@ViewData["Title"] - Admin Search</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+        
+    </style>
+</head>
+
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-search mr-2"></i>Search Results
+        </h1>
+        <a href="Dashboard" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Search Info -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Your Search Query
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @(string.IsNullOrEmpty(Model.Query) ? "No query provided" : Model.Query)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-search fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (string.IsNullOrEmpty(Model.Query))
+    {
+        <div class="alert alert-info shadow-sm">
+            <i class="fas fa-info-circle mr-2"></i> Please enter a search query in the search box above.
+        </div>
+    }
+    else
+    {
+        @if (!Model.MatchingUsers.Any() && !Model.MatchingCars.Any() && !Model.MatchingFaults.Any() && !Model.MatchingReports.Any() && !Model.MatchingAppointments.Any())
+        {
+            <div class="text-center my-5">
+                <div class="error mx-auto" data-text="404">404</div>
+                <p class="lead text-gray-800 mb-5">No Results Found</p>
+                <p class="text-gray-500 mb-3">We couldn't find any matches for "@Model.Query"</p>
+                <p class="text-gray-600 mb-3">Try different keywords or check your spelling</p>
+                <a href="Dashboard" class="btn btn-primary">
+                    <i class="fas fa-home mr-1"></i> Back to Dashboard
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Results Counter -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Users
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.MatchingUsers.Count()</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Cars
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.MatchingCars.Count()</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-car fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Faults
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.MatchingFaults.Count()</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-wrench fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Reports
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.MatchingReports.Count()</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matching Users Section -->
+            @if (Model.MatchingUsers.Any())
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-users mr-1"></i> Matching Users
+                        </h6>
+                        <a href="Dashboard" class="btn btn-sm btn-primary">
+                            <i class="fas fa-users fa-sm"></i> View All Users
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered" width="100%" cellspacing="0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model.MatchingUsers)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar avatar-sm mr-2 bg-primary text-white rounded-circle">
+                                                        @(user.FullName?.Substring(0, 1).ToUpper() ?? "U")
+                                                    </div>
+                                                    <div>@HighlightMatch(user.FullName, Model.Query)</div>
+                                                </div>
+                                            </td>
+                                            <td>@HighlightMatch(user.Email, Model.Query)</td>
+                                            <td>@user.PhoneNumber</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Matching Cars Section -->
+            @if (Model.MatchingCars.Any())
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-success">
+                            <i class="fas fa-car mr-1"></i> Matching Cars
+                        </h6>
+                        <a href="CarList" class="btn btn-sm btn-success">
+                            <i class="fas fa-car fa-sm"></i> View All Cars
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered" width="100%" cellspacing="0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Make & Model</th>
+                                        <th>License Plate</th>
+                                        <th>Owner</th>
+                                        <th>Year</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var car in Model.MatchingCars)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="font-weight-bold">
+                                                    @HighlightMatch(car.Make, Model.Query) @HighlightMatch(car.Model, Model.Query)
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-dark">@HighlightMatch(car.LicenseNumber, Model.Query)</span>
+                                            </td>
+                                            <td>@(car.Owner?.FullName ?? "Unknown")</td>
+                                            <td>@car.Year</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Matching Faults Section -->
+            @if (Model.MatchingFaults.Any())
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-info">
+                            <i class="fas fa-wrench mr-1"></i> Matching Faults
+                        </h6>
+                        <a href="@Url.Action("CarList", "Admin")?showAllFaults=true" class="btn btn-sm btn-info">
+                            <i class="fas fa-wrench fa-sm"></i> View All Faults
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach (var fault in Model.MatchingFaults)
+                            {
+                                <div class="col-lg-6 mb-4">
+                                    <div class="card border-left-info h-100">
+                                        <div class="card-body py-3">
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="font-weight-bold text-info text-uppercase mb-1">
+                                                        Fault #@fault.Id
+                                                    </div>
+                                                    <div class="h6 mb-2 font-weight-bold text-gray-800">
+                                                        @HighlightMatch(fault.Description, Model.Query)
+                                                    </div>
+                                                    <div class="mb-1 text-muted small">
+                                                        <i class="fas fa-calendar-alt mr-1"></i> Reported: @fault.DateReportedOn.ToShortDateString()
+                                                    </div>
+                                                    <div class="mb-1 text-muted small">
+                                                        <i class="fas fa-car mr-1"></i>
+                                                        @(fault.Car?.Make ?? "Unknown") @(fault.Car?.Model ?? "")
+                                                        @if (!string.IsNullOrEmpty(fault.Car?.LicenseNumber))
+                                                        {
+                                                            <span class="badge badge-dark ml-1">@fault.Car.LicenseNumber</span>
+                                                        }
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        @if (fault.ResolutionStatus)
+                                                        {
+                                                            <span class="badge badge-success">Resolved</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-warning">Pending</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    @if (fault.ResolutionStatus)
+                                                    {
+                                                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Matching Reports Section -->
+            @if (Model.MatchingReports.Any())
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-warning">
+                            <i class="fas fa-clipboard-list mr-1"></i> Matching Mechanic Reports
+                        </h6>
+                        <a href="CarReports" class="btn btn-sm btn-warning">
+                            <i class="fas fa-clipboard-list fa-sm"></i> View All Reports
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered" width="100%" cellspacing="0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Report ID</th>
+                                        <th>Service Details</th>
+                                        <th>Parts</th>
+                                        <th>Cost</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var report in Model.MatchingReports)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="font-weight-bold">#@report.Id</div>
+                                                <small class="d-block text-muted">
+                                                    @(report.Car?.Make ?? "Unknown") @(report.Car?.Model ?? "")
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div class="text-wrap" style="max-width: 250px;">
+                                                    @HighlightMatch(report.ServiceDetails, Model.Query)
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (report.Parts != null && report.Parts.Any())
+                                                {
+                                                    <ul class="list-unstyled mb-0">
+                                                        @foreach (var part in report.Parts.Take(3))
+                                                        {
+                                                            <li class="mb-1">
+                                                                <span class="badge badge-light">
+                                                                    @part.Quantity x
+                                                                </span>
+                                                                @HighlightMatch(part.PartName, Model.Query)
+                                                                <span class="text-muted">
+                                                                    ($@part.PartPrice.ToString("F2"))
+                                                                </span>
+                                                            </li>
+                                                        }
+                                                        @if (report.Parts.Count > 3)
+                                                        {
+                                                            <li class="text-muted small">+ @(report.Parts.Count - 3) more parts</li>
+                                                        }
+                                                    </ul>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No parts</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="font-weight-bold">$@report.TotalPrice.ToString("F2")</div>
+                                                <small class="text-muted">
+                                                    Service: $@report.ServiceFee.ToString("F2")
+                                                </small>
+                                            </td>
+                                            <td>
+                                                @report.DateReported.ToShortDateString()
+                                            </td>
+                                            <td>
+                                                <a href="#" class="btn btn-sm btn-warning mb-1">
+                                                    <i class="fas fa-edit fa-sm"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-info mb-1">
+                                                    <i class="fas fa-eye fa-sm"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-secondary mb-1">
+                                                    <i class="fas fa-print fa-sm"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Matching Appointments Section -->
+            @if (Model.MatchingAppointments.Any())
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-danger">
+                            <i class="fas fa-calendar-alt mr-1"></i> Matching Appointments
+                        </h6>
+                        <a href="Appointments" class="btn btn-sm btn-danger">
+                            <i class="fas fa-calendar-alt fa-sm"></i> View All Appointments
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered" width="100%" cellspacing="0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Car</th>
+                                        <th>Date & Time</th>
+                                        <th>Client</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var appointment in Model.MatchingAppointments)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="font-weight-bold">
+                                                    @(appointment.Car?.Make ?? "Unknown") @(appointment.Car?.Model ?? "")
+                                                </div>
+                                                <span class="badge badge-dark">
+                                                    @HighlightMatch(appointment.Car?.LicenseNumber, Model.Query)
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="font-weight-bold">
+                                                    @appointment.AppointmentDate.ToShortDateString()
+                                                </div>
+                                                <small class="text-muted">
+                                                    @appointment.AppointmentTime
+                                                </small>
+                                            </td>
+                                            <td>
+                                                @(appointment.User?.FullName ?? "Unknown")
+                                                @if (!string.IsNullOrEmpty(appointment.User?.PhoneNumber))
+                                                {
+                                                    <div class="small text-muted">
+                                                        <i class="fas fa-phone-alt mr-1"></i>@appointment.User.PhoneNumber
+                                                    </div>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge @GetStatusBadgeClass(appointment.Status)">
+                                                    @appointment.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("AdminAppointmentDetails", "Admin", new { id = appointment.Id })" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-eye fa-sm"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+</div>
+<style>
+    $(document).on('click', '.view-car-faults-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const carId = $(this).data('car-id');
+
+        // Redirect to CarList page with a parameter to load the fault details
+        window.location.href = `/Admin/CarList?carId=${carId}&showFaults=true`;
+    });
+</style>
+<style>
+    /* Custom styles */
+    .highlight-text {
+        background-color: #ffeaa7;
+        padding: 2px 0;
+        border-radius: 2px;
+        font-weight: bold;
+    }
+
+    .error {
+        color: #5a5c69;
+        font-size: 7rem;
+        position: relative;
+        line-height: 1;
+        width: 12.5rem;
+    }
+
+    .avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        font-weight: bold;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .card-header h6 {
+        font-size: 1rem;
+    }
+
+    .table-responsive {
+        min-height: 200px;
+    }
+</style>

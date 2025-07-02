@@ -1,0 +1,94 @@
+﻿@model GarageManagementSystem.ViewModels.CarViewModel
+
+@{
+    ViewData["Title"] = "Edit Car";
+    Layout = "~/Views/Shared/_LayoutMechanic.cshtml";
+}
+<head>
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+
+</head>
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Edit Car</h3>
+        </div>
+        <div class="card-body">
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form asp-action="EditCar" method="post">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Make" class="form-label fw-bold"></label>
+                        <input asp-for="Make" class="form-control" placeholder="Enter car make" />
+                        <span asp-validation-for="Make" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Model" class="form-label fw-bold"></label>
+                        <input asp-for="Model" class="form-control" placeholder="Enter car model" />
+                        <span asp-validation-for="Model" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Year" class="form-label fw-bold"></label>
+                        <input asp-for="Year" type="number" class="form-control" placeholder="Enter year" />
+                        <span asp-validation-for="Year" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Color" class="form-label fw-bold"></label>
+                        <input asp-for="Color" class="form-control" placeholder="Enter color" />
+                        <span asp-validation-for="Color" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="ChassisNumber" class="form-label fw-bold"></label>
+                        <input asp-for="ChassisNumber" class="form-control" placeholder="Enter chassis number" />
+                        <span asp-validation-for="ChassisNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="FuelType" class="form-label fw-bold"></label>
+                        <select asp-for="FuelType" class="form-select">
+                            <option value="Petrol">Petrol</option>
+                            <option value="Hybrid">Hybrid</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="Electric">Electric</option>
+                        </select>
+                        <span asp-validation-for="FuelType" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="LicenseNumber" class="form-label fw-bold"></label>
+                        <input asp-for="LicenseNumber" class="form-control" placeholder="Enter license number" />
+                        <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-controller="Customer" asp-action="CustomerDashboard" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Update Car
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

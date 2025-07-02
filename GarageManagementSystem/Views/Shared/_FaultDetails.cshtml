@@ -1,0 +1,33 @@
+﻿@model GarageManagementSystem.ViewModels.FaultViewModel
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="m-0 font-weight-bold">Fault #@Model.Id</h5>
+        <span class="badge @(Model.ResolutionStatus ? "badge-success" : "badge-warning")">
+            @(Model.ResolutionStatus ? "Resolved" : "Pending")
+        </span>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="text-primary">Vehicle Information</h6>
+                <p class="mb-1"><strong>Make:</strong> @Model.CarMake</p>
+                <p class="mb-1"><strong>Model:</strong> @Model.CarModel</p>
+                @if (!string.IsNullOrEmpty(Model.LicenseNumber))
+                {
+                    <p class="mb-0"><strong>License:</strong> @Model.LicenseNumber</p>
+                }
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-primary">Fault Information</h6>
+                <p class="mb-1"><strong>Reported On:</strong> @Model.DateReportedOn.ToString("MMMM dd, yyyy")</p>
+                <p class="mb-0"><strong>Status:</strong> @(Model.ResolutionStatus ? "Resolved" : "Pending")</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <h6 class="text-primary">Description</h6>
+        <p>@Model.Description</p>
+    </div>
+</div>

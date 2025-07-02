@@ -1,0 +1,149 @@
+﻿@model GarageManagementSystem.ViewModels.CarFaultViewModel
+<div class="card border-0" data-car-id="@Model.CarId">
+    <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="m-0">@Model.CarMake @Model.CarModel</h5>
+        </div>
+        <ul class="nav nav-tabs card-header-tabs" id="faultTabs-@Model.CarId" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active small" id="all-tab-@Model.CarId" data-toggle="tab" href="#all-@Model.CarId" role="tab">All</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link small" id="pending-tab-@Model.CarId" data-toggle="tab" href="#pending-@Model.CarId" role="tab">Pending</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link small" id="resolved-tab-@Model.CarId" data-toggle="tab" href="#resolved-@Model.CarId" role="tab">Resolved</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body p-2">
+        <div class="tab-content" id="faultTabsContent-@Model.CarId">
+            <!-- All Faults Tab -->
+            <div class="tab-pane fade show active" id="all-@Model.CarId" role="tabpanel">
+                @if (Model.Faults.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless">
+                            <thead>
+                                <tr>
+                                    <th class="small">ID</th>
+                                    <th class="small">Description</th>
+                                    <th class="small">Date</th>
+                                    <th class="small">Status</th>
+                                    <th class="small">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var fault in Model.Faults)
+                                {
+                                    <tr class="@(fault.ResolutionStatus ? "" : "table-warning")">
+                                        <td class="small">#@fault.Id</td>
+                                        <td class="small text-truncate" style="max-width: 150px;" title="@fault.Description">@fault.Description</td>
+                                        <td class="small">@fault.DateReportedOn.ToShortDateString()</td>
+                                        <td class="small">
+                                            <span class="badge @(fault.ResolutionStatus ? "badge-success" : "badge-warning")">
+                                                @(fault.ResolutionStatus ? "Resolved" : "Pending")
+                                            </span>
+                                        </td>
+                                        <td class="small">
+                                            <a href="javascript:void(0);" class="btn btn-xs btn-info view-fault-btn" data-fault-id="@fault.Id">
+                                                <i class="fas fa-eye fa-xs"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info small py-2">
+                        <i class="fas fa-info-circle mr-1"></i> No faults recorded.
+                    </div>
+                }
+            </div>
+
+            <!-- Rest of the tabs remain the same -->
+            <!-- Pending Faults Tab -->
+            <div class="tab-pane fade" id="pending-@Model.CarId" role="tabpanel">
+                @if (Model.Faults.Any(f => !f.ResolutionStatus))
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless">
+                            <thead>
+                                <tr>
+                                    <th class="small">ID</th>
+                                    <th class="small">Description</th>
+                                    <th class="small">Date</th>
+                                    <th class="small">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var fault in Model.Faults.Where(f => !f.ResolutionStatus))
+                                {
+                                    <tr>
+                                        <td class="small">#@fault.Id</td>
+                                        <td class="small text-truncate" style="max-width: 150px;" title="@fault.Description">@fault.Description</td>
+                                        <td class="small">@fault.DateReportedOn.ToShortDateString()</td>
+                                        <td class="small">
+                                            <a href="javascript:void(0);" class="btn btn-xs btn-info view-fault-btn" data-fault-id="@fault.Id">
+                                                <i class="fas fa-eye fa-xs"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-success small py-2">
+                        <i class="fas fa-check-circle mr-1"></i> No pending faults.
+                    </div>
+                }
+            </div>
+
+            <!-- Resolved Faults Tab -->
+            <div class="tab-pane fade" id="resolved-@Model.CarId" role="tabpanel">
+                @if (Model.Faults.Any(f => f.ResolutionStatus))
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless">
+                            <thead>
+                                <tr>
+                                    <th class="small">ID</th>
+                                    <th class="small">Description</th>
+                                    <th class="small">Date</th>
+                                    <th class="small">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var fault in Model.Faults.Where(f => f.ResolutionStatus))
+                                {
+                                    <tr>
+                                        <td class="small">#@fault.Id</td>
+                                        <td class="small text-truncate" style="max-width: 150px;" title="@fault.Description">@fault.Description</td>
+                                        <td class="small">@fault.DateReportedOn.ToShortDateString()</td>
+                                        <td class="small">
+                                            <a href="javascript:void(0);" class="btn btn-xs btn-info view-fault-btn" data-fault-id="@fault.Id">
+                                                <i class="fas fa-eye fa-xs"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info small py-2">
+                        <i class="fas fa-info-circle mr-1"></i> No resolved faults.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

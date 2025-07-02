@@ -1,0 +1,472 @@
+﻿@using GarageManagementSystem.ViewModels
+@model AssignFaultViewModel
+@using System.Globalization;
+@{
+    ViewData["Title"] = "Manage Faults";
+    Layout = "~/Views/Shared/_LayoutCustomer.cshtml";
+}
+<head>
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="~/css/CarFaults.css" rel="stylesheet">
+    <style>
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+
+        .fault-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+
+            .fault-item.resolved {
+                background-color: #e8f5e9;
+                border-color: #81c784;
+            }
+
+            .fault-item.unresolved {
+                background-color: #ffebee;
+                border-color: #ef9a9a;
+            }
+
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        select.form-select, textarea.form-control {
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .fault-item {
+            border: 1px solid #e0e0e0;
+            border-left: 5px solid #ffa000;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #fff;
+            transition: background-color 0.3s ease;
+        }
+
+            .fault-item.resolved {
+                border-left-color: #66bb6a;
+                background-color: #f1f8f4;
+            }
+
+            .fault-item.unresolved {
+                border-left-color: #ef5350;
+                background-color: #fdf4f4;
+            }
+
+        .btn-primary {
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+        }
+
+        label {
+            font-weight: 500;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+    </style>
+</head>
+
+<!-- Replace the main container with this improved layout -->
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <!-- Page Header with Icon -->
+            <div class="text-center mb-4">
+                <i class="fas fa-tools fa-3x text-primary mb-3"></i>
+                <h1 class="text-center mb-2">View and Manage Car Faults</h1>
+                <p class="text-muted">Track and report issues with your vehicles</p>
+            </div>
+
+            <!-- Alerts Section -->
+            <div id="alerts-container">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <div>@TempData["SuccessMessage"]</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            <div>@TempData["ErrorMessage"]</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+            </div>
+
+            <!-- Car Selection Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i class="fas fa-car-side mr-2"></i>
+                    <h4 class="mb-0">Select Vehicle</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-0">
+                        <label for="carSelector" class="form-label">Choose a vehicle to view its service history</label>
+                        <select id="carSelector" class="form-select form-control">
+                            <option value="">-- Select a vehicle --</option>
+                            @foreach (var car in Model.MyCars)
+                            {
+                                <option value="@car.CarId">
+                                    @car.CarMake @car.CarModel (@car.LicenseNumber)
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Cards Row -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white d-flex align-items-center">
+                            <i class="fas fa-clipboard-list mr-2"></i>
+                            <h4 class="mb-0">All Faults</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="car-faults-list" class="overflow-auto" style="max-height: 350px;">
+                                <div class="text-center py-4">
+                                    <i class="fas fa-car fa-3x text-muted mb-3"></i>
+                                    <p>Please select a vehicle to view its faults</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-success text-white d-flex align-items-center">
+                            <i class="fas fa-tasks mr-2"></i>
+                            <h4 class="mb-0">Fault Status</h4>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs nav-fill" id="faultStatusTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active d-flex align-items-center justify-content-center"
+                                            id="unresolved-tab" data-bs-toggle="tab"
+                                            data-bs-target="#unresolved" type="button" role="tab">
+                                        <i class="fas fa-exclamation-circle mr-2"></i> Unresolved
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link d-flex align-items-center justify-content-center"
+                                            id="resolved-tab" data-bs-toggle="tab"
+                                            data-bs-target="#resolved" type="button" role="tab">
+                                        <i class="fas fa-check-circle mr-2"></i> Resolved
+                                    </button>
+                                </li>
+                            </ul>
+                            <div class="tab-content pt-3" id="faultStatusTabContent">
+                                <div class="tab-pane fade show active overflow-auto" id="unresolved" role="tabpanel" style="max-height: 270px;">
+                                    <div id="unresolved-faults-list">
+                                        <div class="text-center py-3">
+                                            <i class="fas fa-exclamation-triangle fa-2x text-muted mb-3"></i>
+                                            <p>Select a vehicle to view unresolved issues</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade overflow-auto" id="resolved" role="tabpanel" style="max-height: 270px;">
+                                    <div id="resolved-faults-list">
+                                        <div class="text-center py-3">
+                                            <i class="fas fa-check-double fa-2x text-muted mb-3"></i>
+                                            <p>Select a vehicle to view resolved issues</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add New Fault Card -->
+            <div class="card">
+                <div class="card-header bg-warning text-white d-flex align-items-center">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    <h4 class="mb-0">Report New Fault</h4>
+                </div>
+                <div class="card-body">
+                    <form id="add-fault-form" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="carId" class="form-label">Select Vehicle</label>
+                                <select id="carId" name="CarId" class="form-select form-control" required>
+                                    <option value="">-- Select a vehicle --</option>
+                                    @foreach (var car in Model.MyCars)
+                                    {
+                                        <option value="@car.CarId">
+                                            @car.CarMake @car.CarModel (@car.LicenseNumber)
+                                        </option>
+                                    }
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a vehicle.
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="faultDescription" class="form-label">Describe the Issue</label>
+                                <textarea id="faultDescription" name="Description"
+                                          class="form-control" rows="4" required
+                                          placeholder="Please provide details about the problem..."></textarea>
+                                <div class="invalid-feedback">
+                                    Please describe the fault.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-light me-md-2" id="reset-form">
+                                <i class="fas fa-redo mr-1"></i> Reset
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus mr-1"></i> Add Fault
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fault list templates (hidden) -->
+
+<!-- Replace the fault-item-template with this improved version -->
+<template id="fault-item-template">
+    <div class="fault-item {{status-class}} mb-3">
+        <div class="row align-items-center">
+            <div class="col-md-9">
+                <h5 class="mb-2">{{description}}</h5>
+                <div class="d-flex align-items-center text-muted mb-2">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    <span>Reported on: {{date}}</span>
+                </div>
+            </div>
+            <div class="col-md-3 text-md-end mt-2 mt-md-0">
+                <span class="badge {{badge-class}} d-inline-flex align-items-center">
+                    <i class="fas {{status-icon}} mr-1"></i>
+                    {{status}}
+                </span>
+            </div>
+        </div>
+    </div>
+</template>
+
+@section Scripts {
+    <!-- Scripts -->
+    <script src="~/vendor/jquery/jquery.slim.js"></script>
+    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/sb-admin-2.min.js"></script>
+
+    <script>
+        $(function () {
+            let currentRequest; // Track ongoing AJAX requests
+
+            // Add loading state UI elements
+            function showLoading(element) {
+                $(element).html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Loading data...</p></div>');
+            }
+
+            // Form validation
+            (function () {
+                'use strict';
+
+                // Fetch all forms we want to apply validation to
+                var forms = document.querySelectorAll('.needs-validation');
+
+                // Loop over them and prevent submission
+                Array.prototype.slice.call(forms).forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            })();
+
+            // Reset form button
+            $('#reset-form').click(function () {
+                $('#add-fault-form')[0].reset();
+                $('#add-fault-form').removeClass('was-validated');
+            });
+
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Handle car selection from dropdown
+            $('#carSelector').change(function () {
+                var selectedCarId = $(this).val();
+
+                if (selectedCarId && selectedCarId !== "#") { // Ensure the value is valid
+                    $('#carId').val(selectedCarId);
+                    showLoading('#car-faults-list');
+                    showLoading('#unresolved-faults-list');
+                    showLoading('#resolved-faults-list');
+
+                    setTimeout(function () {
+                        loadCarFaults(selectedCarId);
+                    }, 500);
+                } else {
+                    // Reset to default states
+                    $('#car-faults-list').html('<div class="text-center py-4"><i class="fas fa-car fa-3x text-muted mb-3"></i><p>Please select a vehicle to view its faults</p></div>');
+                    $('#unresolved-faults-list').html('<div class="text-center py-3"><i class="fas fa-exclamation-triangle fa-2x text-muted mb-3"></i><p>Select a vehicle to view unresolved issues</p></div>');
+                    $('#resolved-faults-list').html('<div class="text-center py-3"><i class="fas fa-check-double fa-2x text-muted mb-3"></i><p>Select a vehicle to view resolved issues</p></div>');
+                }
+            });
+
+            // Function to load all faults for a car
+            function loadCarFaults(carId) {
+                if (currentRequest) {
+                    currentRequest.abort(); // Abort any ongoing request
+                }
+
+                currentRequest = $.ajax({
+                    type: 'GET',
+                    url: '/Customer/ModifyResolutionStatus',
+                    data: { carId: carId },
+                    dataType: 'json',
+                    success: function (faults) {
+                        if (faults && faults.length > 0) {
+                            renderFaults(faults, carId);
+                        } else {
+                            // Empty states with icons
+                            $('#car-faults-list').html('<div class="text-center py-4"><i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i><p>No faults reported for this vehicle</p><button class="btn btn-sm btn-outline-primary mt-2" id="add-first-fault">Report Your First Fault</button></div>');
+                            $('#unresolved-faults-list').html('<div class="text-center py-3"><i class="fas fa-check-circle fa-2x text-success mb-3"></i><p>No unresolved issues found</p></div>');
+                            $('#resolved-faults-list').html('<div class="text-center py-3"><i class="fas fa-check-circle fa-2x text-success mb-3"></i><p>No resolved issues found</p></div>');
+
+                            // Add event listener for the "Report Your First Fault" button
+                            $('#add-first-fault').click(function () {
+                                $('html, body').animate({
+                                    scrollTop: $("#add-fault-form").offset().top - 20
+                                }, 500);
+                                $('#faultDescription').focus();
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        if (status !== 'abort') { // Ignore aborted requests
+                            console.error('AJAX Error: ' + status + ' - ' + error);
+
+                            // Error states with icons
+                            $('#car-faults-list').html('<div class="text-center py-4 text-danger"><i class="fas fa-exclamation-circle fa-3x mb-3"></i><p>Error loading fault data</p><button class="btn btn-sm btn-outline-danger mt-2" id="retry-load">Retry</button></div>');
+                            $('#unresolved-faults-list').html('<div class="text-center py-3 text-danger"><i class="fas fa-exclamation-circle fa-2x mb-3"></i><p>Error loading data</p></div>');
+                            $('#resolved-faults-list').html('<div class="text-center py-3 text-danger"><i class="fas fa-exclamation-circle fa-2x mb-3"></i><p>Error loading data</p></div>');
+
+                            // Add retry button functionality
+                            $('#retry-load').click(function () {
+                                loadCarFaults(carId);
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Render faults into the appropriate sections
+            function renderFaults(faults, carId) {
+                var allFaultsHtml = '';
+                var resolvedFaultsHtml = '';
+                var unresolvedFaultsHtml = '';
+
+                var resolvedCount = 0;
+                var unresolvedCount = 0;
+
+                var template = $('#fault-item-template').html();
+
+                faults.forEach(function (fault) {
+                    var isResolved = fault.resolutionStatus;
+                    var statusClass = isResolved ? 'resolved' : 'unresolved';
+                    var badgeClass = isResolved ? 'bg-success' : 'bg-danger';
+                    var status = isResolved ? 'Resolved' : 'Unresolved';
+                    var statusIcon = isResolved ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+                    if (isResolved) {
+                        resolvedCount++;
+                    } else {
+                        unresolvedCount++;
+                    }
+
+                    var date = fault.dateReportedOn
+                        ? new Date(fault.dateReportedOn).toLocaleDateString()
+                        : 'Unknown';
+
+                    var html = template
+                        .replace('{{status-class}}', statusClass)
+                        .replace('{{description}}', fault.description)
+                        .replace('{{date}}', date)
+                        .replace('{{badge-class}}', badgeClass)
+                        .replace('{{status-icon}}', statusIcon)
+                        .replace('{{status}}', status);
+
+                    allFaultsHtml += html;
+
+                    if (isResolved) {
+                        resolvedFaultsHtml += html;
+                    } else {
+                        unresolvedFaultsHtml += html;
+                    }
+                });
+
+                $('#car-faults-list').fadeOut(200, function () {
+                    $(this).html(allFaultsHtml || '<div class="text-center py-4"><i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i><p>No faults reported for this vehicle</p></div>').fadeIn(200);
+                });
+
+                $('#unresolved-tab').html('<i class="fas fa-exclamation-circle mr-2"></i> Unresolved <span class="badge bg-danger ml-1">' + unresolvedCount + '</span>');
+                $('#resolved-tab').html('<i class="fas fa-check-circle mr-2"></i> Resolved <span class="badge bg-success ml-1">' + resolvedCount + '</span>');
+
+                $('#unresolved-faults-list').fadeOut(200, function () {
+                    $(this).html(unresolvedFaultsHtml || '<div class="text-center py-3"><i class="fas fa-check-circle fa-2x text-success mb-3"></i><p>No unresolved issues found</p></div>').fadeIn(200);
+                });
+
+                $('#resolved-faults-list').fadeOut(200, function () {
+                    $(this).html(resolvedFaultsHtml || '<div class="text-center py-3"><i class="fas fa-clipboard fa-2x text-muted mb-3"></i><p>No resolved issues found</p></div>').fadeIn(200);
+                });
+            }
+
+            // Detach event handlers on page unload
+            $(window).on('beforeunload', function () {
+                $('#carSelector').off('change');
+                $('#reset-form').off('click');
+            });
+        });
+    </script>
+}

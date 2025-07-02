@@ -1,0 +1,372 @@
+﻿@{
+    ViewData["Title"] = "All Notifications";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+<!-- Notification View Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        .notification-item {
+            border-left: 4px solid transparent;
+            transition: all 0.2s;
+        }
+
+            .notification-item:hover {
+                background-color: #f8f9fc;
+            }
+
+            .notification-item.unread {
+                border-left-color: #4e73df;
+                font-weight: bold;
+            }
+
+            .notification-item.read {
+                opacity: 0.7;
+            }
+
+        .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filters {
+            border-bottom: 1px solid #e3e6f0;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <input type="hidden" name="__RequestVerificationToken" value="@Antiforgery.GetTokens(Context).RequestToken" />
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">All Notifications</h6>
+                <button id="mark-all-read-on-view-page" class="btn btn-sm btn-primary">
+                    <i class="fas fa-envelope-open mr-1"></i> Mark all as read
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="filters mb-3">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
+                        <button type="button" class="btn btn-outline-primary" data-filter="unread">Unread</button>
+                        <button type="button" class="btn btn-outline-primary" data-filter="read">Read</button>
+                    </div>
+                </div>
+
+                <div id="notifications-container">
+                    <div class="text-center p-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <nav aria-label="Notification pagination" class="mt-4">
+                    <ul id="pagination" class="pagination justify-content-center">
+                        <!-- Pagination will be added dynamically -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+                document.getElementById('mark-all-read-on-view-page').addEventListener('click', async function(e) {
+            e.preventDefault();
+            await markAllAsRead();
+        });
+
+              async function markAllAsRead() {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch('/Notification/NotiPageMarkAllAsRead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    location.reload(); // Refresh the entire page
+                } else {
+                    console.error(data.message);
+                }
+            } catch (error) {
+                console.error('Error marking all notifications as read:', error);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // State variables
+            let currentPage = 1;
+            let pageSize = 10;
+            let currentFilter = 'all';
+            let totalPages = 1;
+
+            // Initial load
+            loadNotifications();
+
+            // Set up filter buttons
+            document.querySelectorAll('.filters button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active state
+                    document.querySelectorAll('.filters button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+
+                    // Update filter and reload
+                    currentFilter = this.getAttribute('data-filter');
+                    currentPage = 1;
+                    loadNotifications();
+                });
+            });
+
+          
+
+            // Function to load notifications
+            function loadNotifications() {
+                const container = document.getElementById('notifications-container');
+                container.innerHTML = `
+                    <div class="text-center p-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                `;
+
+                // In a real implementation, you would pass page, pageSize, and filter parameters
+                fetch(`/Notification/GetAllNotifications?page=${currentPage}&pageSize=${pageSize}&filter=${currentFilter}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const notifications = data.notifications;
+                        totalPages = data.totalPages;
+
+                        // Clear and populate container
+                        container.innerHTML = '';
+
+                        if (notifications.length === 0) {
+                            container.innerHTML = `
+                                <div class="text-center p-5">
+                                    <i class="fas fa-bell-slash fa-3x text-gray-300 mb-3"></i>
+                                    <p class="text-gray-500">No notifications found</p>
+                                </div>
+                            `;
+                        } else {
+                            notifications.forEach(n => {
+                                const date = new Date(n.dateCreated);
+                                const formattedDate = formatTimestamp(date);
+
+                                const item = document.createElement('div');
+                                item.className = `notification-item p-3 d-flex align-items-center ${n.isRead ? 'read' : 'unread'}`;
+                                item.setAttribute('data-id', n.id);
+
+                                item.innerHTML = `
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-primary">
+                                            <i class="fas fa-bell text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div class="notification-content flex-grow-1">
+                                        <div class="mb-1">${n.message}</div>
+                                        <div class="small text-gray-500">${formattedDate}</div>
+                                    </div>
+                                    <div class="ml-3">
+                                        <button class="btn btn-sm toggle-read-btn" data-id="${n.id}" title="${n.isRead ? 'Mark as unread' : 'Mark as read'}">
+                                            <i class="fas ${n.isRead ? 'fa-envelope-open' : 'fa-envelope'}"></i>
+                                        </button>
+                                    </div>
+                                `;
+
+                                container.appendChild(item);
+                            });
+
+                            // Add event listeners for toggle read buttons
+                            document.querySelectorAll('.toggle-read-btn').forEach(btn => {
+                                btn.addEventListener('click', function() {
+                                    const notificationId = this.getAttribute('data-id');
+                                    toggleReadStatus(notificationId);
+                                });
+                            });
+                        }
+
+                        // Update pagination
+                        updatePagination();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching notifications:', error);
+                        container.innerHTML = `
+                            <div class="text-center p-5">
+                                <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                                <p class="text-danger">Error loading notifications</p>
+                            </div>
+                        `;
+                    });
+            }
+
+            // Function to update pagination controls
+            function updatePagination() {
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+
+                // Previous button
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevLi.innerHTML = `<a class="page-link" href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>`;
+                pagination.appendChild(prevLi);
+
+                if (currentPage > 1) {
+                    prevLi.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage--;
+                        loadNotifications();
+                    });
+                }
+
+                // Page numbers
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+
+                if (endPage - startPage < 4 && startPage > 1) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageLi = document.createElement('li');
+                    pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                    pageLi.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+
+                    if (i !== currentPage) {
+                        pageLi.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            currentPage = i;
+                            loadNotifications();
+                        });
+                    }
+
+                    pagination.appendChild(pageLi);
+                }
+
+                // Next button
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+                nextLi.innerHTML = `<a class="page-link" href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>`;
+                pagination.appendChild(nextLi);
+
+                if (currentPage < totalPages) {
+                    nextLi.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage++;
+                        loadNotifications();
+                    });
+                }
+            }
+
+            // Function to toggle read status
+            function toggleReadStatus(id) {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                fetch(`/Notification/ToggleReadStatus/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadNotifications();
+                    } else {
+                        console.error(data.message);
+                    }
+                })
+                .catch(error => console.error('Error toggling notification status:', error));
+            }
+
+           
+        // Add this function to update any notification counters that might be elsewhere on the page
+        function updateNotificationCounters() {
+            // Update notification counter in the navigation if it exists
+            const navCounters = document.querySelectorAll('.notification-counter');
+            navCounters.forEach(counter => {
+                counter.textContent = '0';
+                counter.style.display = 'none';
+            });
+
+            // If there's a notification dropdown in the layout, update it too
+            const dropdownItems = document.querySelectorAll('.notification-dropdown-item.unread');
+            dropdownItems.forEach(item => {
+                item.classList.remove('unread');
+                item.classList.add('read');
+            });
+        }
+
+            // Helper function to format timestamps
+            function formatTimestamp(date) {
+                const now = new Date();
+                const diff = now - date;
+
+                // Less than a minute
+                if (diff < 60000) {
+                    return 'Just now';
+                }
+
+                // Less than an hour
+                if (diff < 3600000) {
+                    const minutes = Math.floor(diff / 60000);
+                    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+                }
+
+                // Less than a day
+                if (diff < 86400000) {
+                    const hours = Math.floor(diff / 3600000);
+                    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+                }
+
+                // Less than a week
+                if (diff < 604800000) {
+                    const days = Math.floor(diff / 86400000);
+                    return `${days} day${days > 1 ? 's' : ''} ago`;
+                }
+
+                // Format as date
+                const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                return date.toLocaleDateString(undefined, options);
+            }
+        });
+    </script>
+</body>
+</html>

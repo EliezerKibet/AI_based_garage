@@ -1,0 +1,78 @@
+﻿@model GarageManagementSystem.ViewModels.MechanicReportViewModel
+@{
+    ViewData["Title"] = "Edit Mechanic Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h1 class="text-center">Edit Mechanic Report</h1>
+
+    <form asp-action="EditReport" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label class="form-label">Car Make</label>
+            <input type="text" class="form-control" value="@Model.CarMake" disabled>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Car Model</label>
+            <input type="text" class="form-control" value="@Model.CarModel" disabled>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Reported Faults</label>
+            @if (Model.Faults != null && Model.Faults.Count > 0)
+            {
+                <ul>
+                    @foreach (var fault in Model.Faults)
+                    {
+                        <li>@fault.Description (@fault.DateReportedOn.ToString("yyyy-MM-dd"))</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No faults reported.</p>
+            }
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ServiceDetails" class="form-label">Service Details</label>
+            <textarea asp-for="ServiceDetails" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AdditionalNotes" class="form-label">Additional Notes</label>
+            <textarea asp-for="AdditionalNotes" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Parts Used</label>
+            @if (Model.Parts != null && Model.Parts.Count > 0)
+            {
+                <ul>
+                    @foreach (var part in Model.Parts)
+                    {
+                        <li>@part.PartName - @part.Quantity x KES @part.PartPrice</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No parts used.</p>
+            }
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Total Cost (KES)</label>
+            <input type="text" class="form-control" asp-for="TotalPrice">
+        </div>
+
+        <div class="mt-3 text-center">
+            <button type="submit" class="btn btn-success">Save Changes</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

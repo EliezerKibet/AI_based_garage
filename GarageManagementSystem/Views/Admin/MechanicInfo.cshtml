@@ -1,0 +1,417 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <link href="~/css/sb-admin-2.css" rel="stylesheet" />
+}
+@{
+    ViewData["Title"] = "Dashboard";
+    @using GarageManagementSystem.ViewModels;
+    @using System.Linq;
+
+    var successMessage = TempData["SuccessMessage"] as string ?? string.Empty;
+    var errorMessage = TempData["ErrorMessage"] as string ?? string.Empty;
+    var dashboardModel = Model as DashboardViewModel;
+
+    // Collections
+    var dashboardUsers = dashboardModel?.GarageUsers ?? new List<DashboardUserViewModel>();
+    var cars = dashboardModel?.Cars ?? new List<CarViewModel>();
+    var customerCars = dashboardModel?.CustomerCars ?? new List<CustomerCarViewModel>();
+    var reports = dashboardModel?.MechanicReports ?? new List<MechanicReportViewModel>();
+
+    // Flags
+    var showCars = dashboardModel?.ShowCars ?? false;
+    var showMechanics = dashboardModel?.ShowMechanics ?? false;
+    var showUnassigned = dashboardModel?.ShowUnassignedCars ?? false;
+    var showCustomers = dashboardModel?.ShowCustomers ?? true; // Make sure this is true for immediate display
+    var showReports = dashboardModel?.ShowReports ?? false;
+
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>@ViewData["Title"] - Car Listings</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+        /* Enhanced styling for the mechanics page */
+        .mechanic-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #4e73df;
+            margin-bottom: 1.5rem;
+        }
+
+            .mechanic-card:hover {
+                box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+                transform: translateY(-2px);
+            }
+
+        .mechanic-header {
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        .mechanic-avatar {
+            width: 48px;
+            height: 48px;
+            background-color: #4e73df;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .mechanic-info {
+            flex: 1;
+        }
+
+        .mechanic-name {
+            font-weight: 700;
+            color: #5a5c69;
+            margin-bottom: 0.25rem;
+        }
+
+        .mechanic-contact {
+            color: #858796;
+            font-size: 0.875rem;
+        }
+
+        .mechanic-body {
+            padding: 1.25rem;
+        }
+
+        .cars-assigned {
+            margin-top: 0.5rem;
+        }
+
+        .cars-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .car-item {
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+            background-color: #f8f9fc;
+            border-left: 3px solid #36b9cc;
+            transition: all 0.2s ease;
+        }
+
+            .car-item:hover {
+                background-color: #eaecf4;
+            }
+
+        .car-owner {
+            font-weight: 600;
+            color: #5a5c69;
+        }
+
+        .car-details {
+            color: #858796;
+        }
+
+        .no-cars {
+            color: #858796;
+            font-style: italic;
+            padding: 0.5rem 0;
+        }
+
+        .mechanic-stats {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            border-right: 1px solid #e3e6f0;
+        }
+
+            .stat-item:last-child {
+                border-right: none;
+            }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #4e73df;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #858796;
+            margin-top: 0.25rem;
+        }
+
+        .page-header {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+        }
+
+            .page-header:after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 50px;
+                height: 4px;
+                background-color: #4e73df;
+            }
+
+        .card-header-custom {
+            background-color: #4e73df;
+            color: white;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .card-header-custom h4 {
+                margin-bottom: 0;
+                font-weight: 600;
+            }
+    </style>
+</head>
+
+
+
+<div id="content">
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h3 mb-0 text-gray-800">Mechanics Dashboard</h1>
+                <p class="text-muted mt-2">
+                    <i class="fas fa-wrench mr-1"></i> Manage your garage's technical team and their workload
+                </p>
+            </div>
+        </div>
+
+        <!-- Content Row -->
+        <div class="row">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Mechanics
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Mechanics.Count</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Cars Assigned
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    @{
+                                        int totalCars = 0;
+                                        foreach (var mechanic in Model.Mechanics)
+                                        {
+                                            totalCars += mechanic.Cars?.Count ?? 0;
+                                        }
+                                    }
+                                    @totalCars
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-car fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Fault Resolution Rate
+                                </div>
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">@ViewBag.CompletionRate%</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="progress progress-sm mr-2">
+                                            <div class="progress-bar bg-info" role="progressbar"
+                                                 style="width: @ViewBag.CompletionRate%"
+                                                 aria-valuenow="@ViewBag.CompletionRate"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mechanics List -->
+        <div class="card shadow mb-4">
+            <div class="card-header-custom">
+                <h4><i class="fas fa-wrench mr-2"></i>Mechanic Team</h4>
+                <div class="input-group input-group-sm" style="width: 250px;">
+                    <input type="text" class="form-control" placeholder="Search mechanics..." id="mechanicSearch">
+                    <div class="input-group-append">
+                        <button class="btn btn-light" type="button">
+                            <i class="fas fa-search fa-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach (var mechanic in Model.Mechanics)
+                    {
+                        <div class="col-lg-6 mechanic-container">
+                            <div class="card mechanic-card shadow-sm">
+                                <div class="mechanic-header">
+                                    <div class="mechanic-avatar">
+                                        @mechanic.FullName.Substring(0, 1)
+                                    </div>
+                                    <div class="mechanic-info">
+                                        <div class="mechanic-name">@mechanic.FullName</div>
+                                        <div class="mechanic-contact">
+                                            <i class="fas fa-envelope fa-sm mr-1"></i> @mechanic.Email |
+                                            <i class="fas fa-phone fa-sm mr-1"></i> @mechanic.PhoneNumber
+                                        </div>
+                                    </div>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink-@mechanic.UserName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink-@mechanic.UserName">
+                                            <div class="dropdown-header">Mechanic Actions:</div>
+                                            <a class="dropdown-item" href="@Url.Action("EditMechanic", "Admin", new { id = mechanic.MechanicId })">
+                                                <i class="fas fa-edit fa-sm fa-fw mr-2 text-gray-400"></i>Edit Details
+                                            </a>
+                                            <a class="dropdown-item" href="@Url.Action("AssignCars","Admin")">
+                                                <i class="fas fa-car fa-sm fa-fw mr-2 text-gray-400"></i>Assign Cars
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mechanic-body">
+                                    <div class="mechanic-stats">
+                                        <div class="stat-item">
+                                            <div class="stat-value">@mechanic.Cars.Count</div>
+                                            <div class="stat-label">Cars Assigned</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-value">@mechanic.ReportsMade</div>
+                                            <div class="stat-label">Reports Made</div>
+                                        </div>
+                                    </div>
+                                    <h6 class="font-weight-bold text-primary">
+                                        <i class="fas fa-car-side mr-1"></i> Currently Working On
+                                    </h6>
+                                    <div class="cars-assigned">
+                                        @if (mechanic.Cars.Count > 0)
+                                        {
+                                            <ul class="cars-list">
+                                                @foreach (var car in mechanic.Cars)
+                                                {
+                                                    <li class="car-item">
+                                                        <div class="car-owner">
+                                                            <i class="fas fa-user mr-1"></i> @car.OwnerName
+                                                        </div>
+                                                        <div class="car-details">
+                                                            <i class="fas fa-car mr-1"></i> @car.Make @car.Model (@car.Year)
+                                                        </div>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <p class="no-cars">
+                                                <i class="fas fa-info-circle mr-1"></i> No cars currently assigned
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- End of Main Content -->
+</div>
+
+
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="js/sb-admin-2.min.js"></script>
+
+<!-- Replace the problematic script section with this corrected version -->
+<script>
+    $(document).ready(function() {
+        // Search functionality for mechanics
+        $("#mechanicSearch").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            // Fixed lambda expression by using a traditional function instead
+            $(".mechanic-container").each(function() {
+                var text = $(this).text().toLowerCase();
+                var isVisible = text.indexOf(value) > -1;
+                $(this).toggle(isVisible);
+            });
+        });
+    });
+</script>

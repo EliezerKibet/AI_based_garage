@@ -1,0 +1,1424 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+
+    ViewData["Title"] = "Mechanic Dashboard";
+    @using GarageManagementSystem.ViewModels;
+    @using System.Linq;
+
+    var successMessage = TempData["SuccessMessage"] as string ?? string.Empty;
+    var errorMessage = TempData["ErrorMessage"] as string ?? string.Empty;
+    var dashboardModel = Model as DashboardViewModel;
+
+
+    
+    @using Microsoft.AspNetCore.Identity
+    @inject SignInManager<Users> SignInManager
+
+    @inject UserManager<Users> UserManager
+
+    @using GarageManagementSystem.Models
+
+}
+@{
+    var notifications = ViewData["Notifications"] as List<GarageManagementSystem.ViewModels.NotificationViewModel>;
+    var unreadCount = ViewData["UnreadCount"] as int? ?? 0;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+    @RenderSection("Styles", required: false)
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css" />
+    <link rel="stylesheet" href="~/css/chatbot.css" />
+
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+
+    <style>
+        .dropdown-list {
+            scrollbar-width: thin;
+            scrollbar-color: #ccc transparent;
+        }
+
+            .dropdown-list::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .dropdown-list::-webkit-scrollbar-thumb {
+                background-color: #ccc;
+                border-radius: 3px;
+            }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+
+        .chat-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1b6ec2, #1861ac);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(27, 110, 194, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .chat-toggle-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 25px rgba(27, 110, 194, 0.6);
+            }
+
+            .chat-toggle-btn.active {
+                background: #dc3545;
+            }
+
+        .chat-widget {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 380px;
+            height: 550px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+            overflow: hidden;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+            .chat-widget.show {
+                display: flex;
+                transform: scale(1);
+                opacity: 1;
+            }
+
+        .chat-header {
+            background: linear-gradient(135deg, #1b6ec2, #1861ac);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 16px 16px 0 0;
+            flex-shrink: 0;
+        }
+
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+        }
+
+            .chat-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+
+            .chat-avatar .fallback-icon {
+                font-size: 18px;
+                color: white;
+            }
+
+        .chat-details h6 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chat-status {
+            font-size: 12px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+            .header-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            min-height: 200px;
+            max-height: calc(100% - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            animation: fadeInUp 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.assistant {
+            text-align: left;
+            align-self: flex-start;
+        }
+
+        .message.user {
+            text-align: right;
+            align-self: flex-end;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            position: relative;
+            background: white;
+        }
+
+        .message.assistant .message-bubble {
+            background: white;
+            color: #333;
+            border: 1px solid #e9ecef;
+            border-radius: 18px 18px 18px 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #1b6ec2, #1861ac);
+            color: white;
+            border-radius: 18px 18px 6px 18px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .assistant-name {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+            .assistant-name .bot-icon {
+                width: 20px;
+                height: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 6px;
+                overflow: hidden;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                flex-shrink: 0;
+            }
+
+                .assistant-name .bot-icon img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: 50%;
+                }
+
+                .assistant-name .bot-icon .fallback-icon {
+                    background: linear-gradient(135deg, #1b6ec2, #1861ac);
+                    color: white;
+                    font-size: 8px;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+        .suggestions {
+            padding: 16px 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            flex-shrink: 0;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .suggestion-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .pill {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 10px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+            .pill:hover {
+                background: linear-gradient(135deg, #1b6ec2, #1861ac);
+                color: white;
+                border-color: transparent;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(27, 110, 194, 0.3);
+            }
+
+        .chat-input {
+            padding: 16px 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            border-radius: 0 0 16px 16px;
+            flex-shrink: 0;
+        }
+
+        .input-group-custom {
+            background: #f8f9fa;
+            border-radius: 24px;
+            padding: 4px;
+            border: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+        }
+
+            .input-group-custom input {
+                border: none;
+                background: transparent;
+                padding: 8px 16px;
+                border-radius: 20px;
+                outline: none;
+                flex: 1;
+                font-size: 14px;
+            }
+
+                .input-group-custom input::placeholder {
+                    color: #6c757d;
+                }
+
+        .send-btn {
+            background: linear-gradient(135deg, #1b6ec2, #1861ac);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+            .send-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 2px 8px rgba(27, 110, 194, 0.4);
+            }
+
+        .typing-indicator {
+            display: none;
+            padding: 8px 20px;
+            color: #666;
+            font-size: 13px;
+            font-style: italic;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .typing-dots::after {
+            content: '...';
+            animation: typing 1.5s infinite;
+        }
+
+        @@keyframes typing {
+            0%, 60% {
+                content: '...';
+            }
+
+            30% {
+                content: '..';
+            }
+
+            90% {
+                content: '.';
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .chat-widget {
+                width: calc(100vw - 20px);
+                height: 75vh;
+                right: 10px;
+                bottom: 80px;
+            }
+
+            .chat-toggle-btn {
+                right: 15px;
+                bottom: 15px;
+            }
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 2px;
+        }
+
+            .chat-messages::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
+            }
+
+        @@keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("Dashboard", "Mechanic")">
+                <div class="sidebar-brand-text mx-3">UMI Garage Management System</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Mechanic Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" href="@Url.Action("Dashboard", "Mechanic")">
+                    <i class="fas fa-fw fa-wrench text-white"></i> <!-- Blue Icon -->
+                    <span>Mechanic Dashboard</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Cars
+            </div>
+
+            <!-- Nav Item - Mechanic Information -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMechanicInfo"
+                   aria-expanded="@(ViewData["IsMechanicList"] != null && (bool)ViewData["IsMechanicList"])"
+                   aria-controls="collapseMechanicInfo">
+                    <i class="fas fa-car"></i>
+                    <span>Cars</span>
+                </a>
+                <div id="collapseMechanicInfo" class="collapse @(ViewData["IsMechanicList"] != null && (bool)ViewData["IsMechanicList"] ? "show" : "")"
+                     aria-labelledby="headingMechanicInfo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Details</h6>
+                        <a class="collapse-item" href="@Url.Action("AssignedList", "Mechanic")">Car Assigned</a>
+                        <a class="collapse-item" href="@Url.Action("Fault", "Mechanic")">Car Faults</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Reports
+            </div>
+
+            <!-- Nav Item - Report -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCurrentReports"
+                   aria-expanded="@(ViewData["IsCurrentReports"] != null && (bool)ViewData["IsCurrentReports"])"
+                   aria-controls="collapseCurrentReports">
+                    <i class="fas fa-file-alt"></i> <!-- Blue Icon -->
+                    <span>Reports</span>
+                </a>
+                <div id="collapseCurrentReports"
+                     class="collapse @(ViewData["IsCurrentReports"] != null && (bool)ViewData["IsCurrentReports"] ? "show" : "")"
+                     aria-labelledby="headingCurrentReports" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Cars</h6>
+                        <a class="collapse-item" href="@Url.Action("GetCarReports", "Mechanic")">Reports</a>
+                        <a class="collapse-item" href="@Url.Action("CreateMechanicReport", "Mechanic")">Create Reports</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Appointments
+            </div>
+
+            <!-- Nav Item - Appointments Schedule -->
+            <li class="nav-item">
+                <a class="nav-link collapsed @(ViewData["IsAppointments"] != null && (bool)ViewData["IsAppointments"] ? "" : "collapsed")"
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseAppointmentInfo"
+                   aria-expanded="@(ViewData["IsAppointments"] != null && (bool)ViewData["IsAppointments"] ? "true" : "false")"
+                   aria-controls="collapseAppointmentInfo">
+                    <i class="fas fa-calendar-check"></i> <!-- Blue Icon -->
+                    <span>Appointments Info</span>
+                </a>
+                <div id="collapseAppointmentInfo"
+                     class="collapse @(ViewData["IsAppointments"] != null && (bool)ViewData["IsAppointments"] ? "show" : "")"
+                     aria-labelledby="headingAppointmentInfo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Details</h6>
+                        <a class="collapse-item" href="@Url.Action("MechanicAppointments", "Mechanic")">Current Appointments</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Search -->
+                    <form asp-controller="Mechanic" asp-action="MechanicSearch" method="get"
+                          class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group">
+                            <input type="text" name="query" class="form-control bg-light border-0 small"
+                                   placeholder="Search..." aria-label="Search" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+                        <li class="nav-item dropdown no-arrow d-sm-none">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-search fa-fw"></i>
+                            </a>
+                            <!-- Dropdown - Messages -->
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                                 aria-labelledby="searchDropdown">
+                                <form class="form-inline mr-auto w-100 navbar-search">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light border-0 small"
+                                               placeholder="Search for..." aria-label="Search"
+                                               aria-describedby="basic-addon2">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="fas fa-search fa-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Notifications">
+                                <i class="fas fa-bell fa-fw"></i>
+                                <span id="notification-badge" class="badge badge-danger badge-counter" style="display: none;">0</span>
+                            </a>
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                                <h6 class="dropdown-header d-flex justify-content-between align-items-center">
+                                    <span>Notifications Center</span>
+                                    <button id="mark-all-read" class="btn btn-sm btn-link text-white p-0">
+                                        <i class="fas fa-envelope-open"></i> Mark all read
+                                    </button>
+                                </h6>
+                                <!-- Scrollable container -->
+                                <div id="notification-container" style="max-height: 300px; overflow-y: auto; padding-right: 10px;">
+                                    <!-- Notifications will be inserted here dynamically -->
+                                    <div class="text-center p-3">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a class="dropdown-item text-center small text-gray-500" href="/Notification/MechanicNotificationViewPage" id="view-all-notifications">View All Notifications</a>
+                            </div>
+                        </li>
+
+                        <input type="hidden" name="__RequestVerificationToken" value="@Antiforgery.GetTokens(Context).RequestToken" />
+
+                        <input type="hidden" name="__RequestVerificationToken" value="@Antiforgery.GetTokens(Context).RequestToken" />
+
+                        <script>
+                                                       document.addEventListener("DOMContentLoaded", function () {
+                                loadNotifications();
+
+                                // Set up refresh interval (every 60 seconds)
+                                setInterval(loadNotifications, 60000);
+
+                                // Function to load all notification data
+                                function loadNotifications() {
+                                    // Load unread count
+                                    fetch('/Notification/GetUnreadCount')
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            const badge = document.getElementById("notification-badge");
+                                            if (data.count > 0) {
+                                                badge.textContent = data.count;
+                                                badge.style.display = "inline-block";
+                                            } else {
+                                                badge.style.display = "none";
+                                            }
+                                        })
+                                        .catch(error => console.error('Error fetching notification count:', error));
+
+                                    // Load notifications dynamically into the dropdown
+                                    fetch('/Notification/GetNotifications')
+                                        .then(response => response.json())
+                                        .then(notifications => {
+                                            const container = document.querySelector("#notification-container");
+                                            container.innerHTML = "";
+
+                                            if (notifications.length === 0) {
+                                                container.innerHTML = `<span class="dropdown-item text-center small text-gray-500">No notifications</span>`;
+                                            } else {
+                                                notifications.forEach(n => {
+                                                    const item = document.createElement("a");
+                                                    item.href = "#";
+                                                    item.className = `dropdown-item d-flex align-items-center notification-item ${n.isRead ? '' : 'font-weight-bold'}`;
+                                                    item.setAttribute("data-id", n.id);
+                                                    item.style.opacity = n.isRead ? "0.6" : "1";
+
+                                                    // Format the date nicely
+                                                    const date = new Date(n.dateCreated);
+                                                    const formattedDate = date.toLocaleString();
+
+                                                    item.innerHTML = `
+                                                        <div class="mr-3">
+                                                            <div class="icon-circle bg-primary">
+                                                                <i class="fas fa-bell text-white"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="notification-content w-100">
+                                                            <div class="text-truncate">${n.message}</div>
+                                                            <div class="small text-gray-500">${formattedDate}</div>
+                                                        </div>
+                                                        <div class="ml-2">
+                                                            <button class="btn btn-sm mark-read-btn" data-id="${n.id}">
+                                                                <i class="fas ${n.isRead ? 'fa-envelope-open' : 'fa-envelope'}"></i>
+                                                            </button>
+                                                        </div>
+                                                    `;
+
+                                                    container.appendChild(item);
+                                                });
+
+                                                // Add event listeners for mark as read buttons
+                                                document.querySelectorAll('.mark-read-btn').forEach(btn => {
+                                                    btn.addEventListener('click', function(e) {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        const notificationId = this.getAttribute('data-id');
+                                                        toggleReadStatus(notificationId);
+                                                    });
+                                                });
+
+                                                // Add event listeners for notification items
+                                                document.querySelectorAll('.notification-item').forEach(item => {
+                                                    item.addEventListener('click', function(e) {
+                                                        e.preventDefault();
+                                                        const notificationId = this.getAttribute('data-id');
+                                                        markAsRead(notificationId);
+                                                    });
+                                                });
+                                            }
+                                        })
+                                        .catch(error => console.error('Error fetching notifications:', error));
+                                }
+
+                                // Function to mark notification as read
+                                function markAsRead(id) {
+                                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                                    fetch(`/Notification/MarkAsRead/${id}`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'RequestVerificationToken': token
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            loadNotifications(); // Refresh notifications after marking as read
+                                        } else {
+                                            console.error(data.message);
+                                        }
+                                    })
+                                    .catch(error => console.error('Error marking notification as read:', error));
+                                }
+
+                                // Function to toggle read status
+                                function toggleReadStatus(id) {
+                                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                                    fetch(`/Notification/ToggleReadStatus/${id}`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'RequestVerificationToken': token
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            loadNotifications(); // Refresh notifications after toggling status
+                                        } else {
+                                            console.error(data.message);
+                                        }
+                                    })
+                                    .catch(error => console.error('Error toggling notification status:', error));
+                                }
+                            });
+                                                        document.addEventListener("DOMContentLoaded", function () {
+                                loadNotifications();
+
+                                // Set up refresh interval (every 60 seconds)
+                                setInterval(loadNotifications, 60000);
+
+                                // Handle Mark All as Read button
+                                document.getElementById('mark-all-read').addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    markAllAsRead();
+                                });
+
+                                // Handle View All Notifications link
+                                document.getElementById('view-all-notifications').addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    // You can implement a page to show all notifications
+                                    // For now, we'll just reload the current notifications
+                                    loadNotifications();
+                                });
+
+                                // Function to load all notification data
+                                function loadNotifications() {
+                                    // Load unread count
+                                    fetch('/Notification/GetUnreadCount')
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            const badge = document.getElementById("notification-badge");
+                                            if (data.count > 0) {
+                                                badge.textContent = data.count > 99 ? '99+' : data.count;
+                                                badge.style.display = "inline-block";
+                                            } else {
+                                                badge.style.display = "none";
+                                            }
+                                        })
+                                        .catch(error => console.error('Error fetching notification count:', error));
+
+                                    // Load notifications dynamically into the dropdown
+                                    fetch('/Notification/GetNotifications')
+                                        .then(response => response.json())
+                                        .then(notifications => {
+                                            const container = document.querySelector("#notification-container");
+                                            container.innerHTML = "";
+
+                                            if (notifications.length === 0) {
+                                                container.innerHTML = `<span class="dropdown-item text-center small text-gray-500">No notifications</span>`;
+                                            } else {
+                                                notifications.forEach(n => {
+                                                    const item = document.createElement("a");
+                                                    item.href = "#";
+                                                    item.className = `dropdown-item d-flex align-items-center notification-item ${n.isRead ? '' : 'font-weight-bold'}`;
+                                                    item.setAttribute("data-id", n.id);
+                                                    item.style.opacity = n.isRead ? "0.6" : "1";
+
+                                                    // Format the date nicely
+                                                    const date = new Date(n.dateCreated);
+                                                    const formattedDate = formatTimestamp(date);
+
+                                                    item.innerHTML = `
+                                                        <div class="mr-3">
+                                                            <div class="icon-circle bg-primary">
+                                                                <i class="fas fa-bell text-white"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="notification-content w-100">
+                                                            <div class="text-truncate">${n.message}</div>
+                                                            <div class="small text-gray-500">${formattedDate}</div>
+                                                        </div>
+                                                        <div class="ml-2">
+                                                            <button class="btn btn-sm mark-read-btn" data-id="${n.id}" title="${n.isRead ? 'Mark as unread' : 'Mark as read'}">
+                                                                <i class="fas ${n.isRead ? 'fa-envelope-open' : 'fa-envelope'}"></i>
+                                                            </button>
+                                                        </div>
+                                                    `;
+
+                                                    container.appendChild(item);
+                                                });
+
+                                                // Add event listeners for mark as read buttons
+                                                document.querySelectorAll('.mark-read-btn').forEach(btn => {
+                                                    btn.addEventListener('click', function(e) {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        const notificationId = this.getAttribute('data-id');
+                                                        toggleReadStatus(notificationId);
+                                                    });
+                                                });
+
+                                                // Add event listeners for notification items
+                                                document.querySelectorAll('.notification-item').forEach(item => {
+                                                    item.addEventListener('click', function(e) {
+                                                        if (e.target.closest('.mark-read-btn')) {
+                                                            return; // Don't handle the click if it was on the mark as read button
+                                                        }
+                                                        e.preventDefault();
+                                                        const notificationId = this.getAttribute('data-id');
+                                                        markAsRead(notificationId);
+                                                    });
+                                                });
+                                            }
+                                        })
+                                        .catch(error => console.error('Error fetching notifications:', error));
+                                }
+
+                                // Function to mark notification as read
+                                function markAsRead(id) {
+                                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                                    fetch(`/Notification/MarkAsRead/${id}`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'RequestVerificationToken': token
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            loadNotifications(); // Refresh notifications after marking as read
+                                        } else {
+                                            console.error(data.message);
+                                        }
+                                    })
+                                    .catch(error => console.error('Error marking notification as read:', error));
+                                }
+
+                                // Function to toggle read status
+                                function toggleReadStatus(id) {
+                                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                                    fetch(`/Notification/ToggleReadStatus/${id}`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'RequestVerificationToken': token
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            loadNotifications(); // Refresh notifications after toggling status
+                                        } else {
+                                            console.error(data.message);
+                                        }
+                                    })
+                                    .catch(error => console.error('Error toggling notification status:', error));
+                                }
+
+                                // Function to mark all notifications as read
+                                function markAllAsRead() {
+                                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                                    fetch('/Notification/MarkAllAsRead', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'RequestVerificationToken': token
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            loadNotifications(); // Refresh notifications after marking all as read
+                                        } else {
+                                            console.error(data.message);
+                                        }
+                                    })
+                                    .catch(error => console.error('Error marking all notifications as read:', error));
+                                }
+
+                                // Helper function to format timestamps in a user-friendly way
+                                function formatTimestamp(date) {
+                                    const now = new Date();
+                                    const diff = now - date;
+
+                                    // Less than a minute
+                                    if (diff < 60000) {
+                                        return 'Just now';
+                                    }
+
+                                    // Less than an hour
+                                    if (diff < 3600000) {
+                                        const minutes = Math.floor(diff / 60000);
+                                        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+                                    }
+
+                                    // Less than a day
+                                    if (diff < 86400000) {
+                                        const hours = Math.floor(diff / 3600000);
+                                        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+                                    }
+
+                                    // Less than a week
+                                    if (diff < 604800000) {
+                                        const days = Math.floor(diff / 86400000);
+                                        return `${days} day${days > 1 ? 's' : ''} ago`;
+                                    }
+
+                                    // Format as date
+                                    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                                    return date.toLocaleDateString(undefined, options);
+                                }
+                            });
+
+                                                        document.getElementById('view-all-notifications').addEventListener('click', function(e) {
+                                e.preventDefault();
+                                window.location.href = '/Mechanic/MechanicNotificationViewPage';
+                            });
+                        </script>
+
+                        <div class="topbar-divider d-none d-sm-block"></div>
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <!-- Dynamically set the user's profile picture if available, with increased size -->
+                                <img class="img-profile rounded-circle"
+                                     src="@(string.IsNullOrEmpty(ViewData["ProfilePicture"]?.ToString()) ? Url.Content("~/images/default-profile.png") : Url.Content(ViewData["ProfilePicture"].ToString()))"
+                                     style="width: 40px; height: 40px;">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <!-- Profile Link -->
+                                <a class="dropdown-item w-100 text-left" href="@Url.Action("Settings", "Mechanic")">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profile
+                                </a>
+
+                                <!-- Log Out Form -->
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-item p-0 m-0">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item w-100 text-left border-0 bg-transparent">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                        Log Out
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                
+
+                    <!--Main -->
+					@RenderBody()
+
+               
+                    @RenderSection("Scripts", required: false)
+                <!-- End of Main Content -->
+
+                <!-- Mechanic Chatbot Widget -->
+                <button class="chat-toggle-btn" id="chatToggle" onclick="toggleChat()">
+                    <i class="fas fa-robot" id="chatIcon"></i>
+                </button>
+
+                <div class="chat-widget" id="chatWidget">
+                    <div class="chat-header">
+                        <div class="chat-header-info">
+                            <div class="chat-avatar">
+                                <img src="~/images/UMIchatbot.png" alt="Garage Assistant" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="fallback-icon" style="display: none;">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                            </div>
+                            <div class="chat-details">
+                                <h6>GARAGE ASSISTANT</h6>
+                                <p class="chat-status" id="chatStatus">Ready to help</p>
+                            </div>
+                        </div>
+                        <div class="chat-actions">
+                            <button class="header-btn" onclick="refreshChat()" title="Refresh">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="header-btn" onclick="toggleChat()" title="Close">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Welcome message will be added here by JavaScript -->
+                    </div>
+
+                    <div class="suggestions">
+                        <div class="suggestion-pills" id="suggestionPills">
+                            <div class="pill" onclick="askQuestion('Show me my work schedule')">My Schedule</div>
+                            <div class="pill" onclick="askQuestion('Which cars are assigned to me?')">Assigned Cars</div>
+                            <div class="pill" onclick="askQuestion('How many reports have I completed?')">My Reports</div>
+                            <div class="pill" onclick="askQuestion('What\'s my next appointment?')">Next Appointment</div>
+                            <div class="pill" onclick="askQuestion('Show me pending faults on my cars')">Pending Faults</div>
+                            <div class="pill" onclick="askQuestion('What\'s my total earnings this month?')">Monthly Earnings</div>
+                        </div>
+                    </div>
+
+                    <div class="typing-indicator" id="typingIndicator">
+                        <span class="assistant-name">
+                            <div class="bot-icon">
+                                <img src="~/images/UMIchatbot.png" alt="Assistant" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="fallback-icon" style="display: none;">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                            </div>
+                            Assistant is typing<span class="typing-dots"></span>
+                        </span>
+                    </div>
+
+                    <div class="chat-input">
+                        <div class="input-group-custom">
+                            <input type="text" id="messageInput" placeholder="Ask about your schedule, assigned cars, reports..." onkeypress="handleKeyPress(event)">
+                            <button class="send-btn" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add this JavaScript before closing </body>
+                <script>
+                    let isOpen = false;
+                    let conversationHistory = [];
+                    let currentUserRole = '';
+
+                    function toggleChat() {
+                        const widget = document.getElementById('chatWidget');
+                        const toggle = document.getElementById('chatToggle');
+                        const icon = document.getElementById('chatIcon');
+
+                        isOpen = !isOpen;
+
+                        if (isOpen) {
+                            widget.classList.add('show');
+                            toggle.classList.add('active');
+                            icon.className = 'fas fa-times';
+
+                            // Add welcome message if this is the first time opening
+                            if (conversationHistory.length === 0) {
+                                addMechanicWelcomeMessage();
+                                setTimeout(() => initializeChat(), 500);
+                            }
+
+                            document.getElementById('messageInput').focus();
+                        } else {
+                            widget.classList.remove('show');
+                            toggle.classList.remove('active');
+                            icon.className = 'fas fa-robot';
+                        }
+                    }
+
+                    function addMechanicWelcomeMessage() {
+                        const messagesDiv = document.getElementById('chatMessages');
+
+                        // Clear any existing content
+                        messagesDiv.innerHTML = '';
+
+                        // Add mechanic-specific welcome message
+                        const welcomeDiv = document.createElement('div');
+                        welcomeDiv.className = 'message assistant';
+                        welcomeDiv.innerHTML = `
+                            <div class="assistant-name">
+                                <div class="bot-icon">
+                                    <img src="~/images/UMIchatbot.png" alt="Assistant" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="fallback-icon" style="display: none;">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                </div>
+                                GARAGE ASSISTANT
+                            </div>
+                            <div class="message-bubble">
+                                <div>Hey there! 🔧 I'm your <strong>Work Assistant</strong>.</div>
+                                <div class="mt-2">I can help you with your schedule, assigned vehicles, work reports, and earnings. What would you like to check?</div>
+                                <div class="message-time">Just now</div>
+                            </div>
+                        `;
+
+                        messagesDiv.appendChild(welcomeDiv);
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    }
+
+                    async function initializeChat() {
+                        try {
+                            updateStatus('Connecting...');
+                            const response = await fetch('/api/chatbot/welcome');
+                            if (!response.ok) throw new Error('Failed to connect');
+
+                            const data = await response.json();
+                            currentUserRole = data.userRole;
+
+                            updateStatus('Online • Ready to help');
+                            updateSuggestions(data.prompts);
+                        } catch (error) {
+                            console.error('Error initializing chat:', error);
+                            updateStatus('Connection issue');
+                            addMessage('Sorry, I\'m having trouble connecting right now. Please refresh the page and try again.', 'assistant', true);
+                        }
+                    }
+
+                    async function sendMessage() {
+                        const input = document.getElementById('messageInput');
+                        const message = input.value.trim();
+                        if (!message) return;
+
+                        addMessage(message, 'user');
+                        input.value = '';
+                        showTyping();
+
+                        try {
+                            const response = await fetch('/api/chatbot/ask', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ question: message })
+                            });
+
+                            if (!response.ok) throw new Error('Request failed');
+                            const data = await response.json();
+
+                            hideTyping();
+                            addMessage(data.answer, 'assistant');
+
+                            // Update suggestions with new mechanic-focused prompts
+                            if (data.prompts && data.prompts.length > 0) {
+                                updateSuggestions(data.prompts);
+                            }
+
+                            conversationHistory.push({
+                                question: message,
+                                answer: data.answer,
+                                timestamp: new Date()
+                            });
+                        } catch (error) {
+                            console.error('Error sending message:', error);
+                            hideTyping();
+                            addMessage('Sorry, I couldn\'t process that request right now. Please try again in a moment.', 'assistant', true);
+                        }
+                    }
+
+                    function addMessage(content, sender, isError = false) {
+                        const messagesDiv = document.getElementById('chatMessages');
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = `message ${sender}`;
+
+                        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        let messageHTML = '';
+
+                        if (sender === 'assistant') {
+                            messageHTML = `
+                                <div class="assistant-name">
+                                    <div class="bot-icon">
+                                        <img src="~/images/UMIchatbot.png" alt="Assistant" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="fallback-icon" style="display: none;">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                    </div>
+                                    GARAGE ASSISTANT
+                                </div>
+                                <div class="message-bubble ${isError ? 'bg-danger text-white' : ''}">
+                                    ${formatMessage(content)}
+                                    <div class="message-time">${timestamp}</div>
+                                </div>
+                            `;
+                        } else {
+                            messageHTML = `
+                                <div class="message-bubble">
+                                    ${escapeHtml(content)}
+                                    <div class="message-time">${timestamp}</div>
+                                </div>
+                            `;
+                        }
+
+                        messageDiv.innerHTML = messageHTML;
+                        messagesDiv.appendChild(messageDiv);
+
+                        // Scroll to bottom with animation
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    }
+
+                    function formatMessage(message) {
+                        return message
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\n/g, '<br>')
+                            .replace(/•/g, '&bull;')
+                            .replace(/RM\s*(\d+(?:\.\d{2})?)/g, '<span style="color: #28a745; font-weight: 600;">RM $1</span>')
+                            .replace(/(\d+)([%])/g, '<span style="font-weight: 600;">$1$2</span>');
+                    }
+
+                    function escapeHtml(text) {
+                        const div = document.createElement('div');
+                        div.textContent = text;
+                        return div.innerHTML;
+                    }
+
+                    function updateSuggestions(prompts) {
+                        if (!prompts || prompts.length === 0) {
+                            // Fallback to mechanic-specific suggestions if no prompts from server
+                            const fallbackSuggestions = [
+                                { text: 'Show me my work schedule' },
+                                { text: 'Which cars are assigned to me?' },
+                                { text: 'How many reports have I completed?' },
+                                { text: 'What\'s my next appointment?' },
+                                { text: 'Show me pending faults on my cars' },
+                                { text: 'What\'s my total earnings this month?' }
+                            ];
+                            prompts = fallbackSuggestions;
+                        }
+
+                        const pillsContainer = document.getElementById('suggestionPills');
+                        pillsContainer.innerHTML = '';
+
+                        // Show up to 6 mechanic-focused suggestions
+                        prompts.slice(0, 6).forEach(prompt => {
+                            const pill = document.createElement('div');
+                            pill.className = 'pill';
+                            pill.textContent = prompt.text.length > 30 ? prompt.text.substring(0, 30) + '...' : prompt.text;
+                            pill.onclick = () => askQuestion(prompt.text);
+                            pill.title = prompt.text; // Show full text on hover
+                            pillsContainer.appendChild(pill);
+                        });
+                    }
+
+                    function askQuestion(question) {
+                        document.getElementById('messageInput').value = question;
+                        sendMessage();
+                    }
+
+                    function showTyping() {
+                        document.getElementById('typingIndicator').style.display = 'block';
+                        updateStatus('Typing...');
+                    }
+
+                    function hideTyping() {
+                        document.getElementById('typingIndicator').style.display = 'none';
+                        updateStatus('Online • Ready to help');
+                    }
+
+                    function updateStatus(status) {
+                        document.getElementById('chatStatus').textContent = status;
+                    }
+
+                    function handleKeyPress(event) {
+                        if (event.key === 'Enter') sendMessage();
+                    }
+
+                    function refreshChat() {
+                        // Clear messages and reinitialize
+                        const messagesDiv = document.getElementById('chatMessages');
+                        messagesDiv.innerHTML = '';
+                        conversationHistory = [];
+                        addMechanicWelcomeMessage();
+                        initializeChat();
+                    }
+
+                    // Initialize when page loads
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Add subtle animation to draw attention after page loads
+                        setTimeout(() => {
+                            if (!isOpen) {
+                                const btn = document.getElementById('chatToggle');
+                                btn.style.animation = 'pulse 2s infinite';
+                                setTimeout(() => btn.style.animation = '', 8000);
+                            }
+                        }, 3000);
+                    });
+                </script>
+
+                <!-- Footer -->
+                <footer class="sticky-footer bg-white">
+                    <div class="container my-auto">
+                        <div class="copyright text-center my-auto">
+                            <span>Copyright &copy; UMI 2025</span>
+                        </div>
+                    </div>
+                </footer>
+                <!-- End of Footer -->
+
+            </div>
+            <!-- End of Content Wrapper -->
+
+
+        </div>
+    </div>
+    <script src="~/js/sb-admin-2.min.js"></script>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="vendor/chart.js/Chart.min.js"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="js/demo/chart-area-demo.js"></script>
+    <script src="js/demo/chart-pie-demo.js"></script>
+
+    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+    
+

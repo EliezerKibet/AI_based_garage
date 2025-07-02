@@ -1,0 +1,19 @@
+﻿@model List<GarageManagementSystem.ViewModels.FaultViewModel>
+
+<div class="resolved-faults-extended">
+    @foreach (var fault in Model)
+    {
+        <div class="fault-list-item resolved">
+            <div class="d-flex justify-content-between">
+                <span class="font-weight-bold">#@fault.Id</span>
+                <small class="text-muted">@fault.DateReportedOn.ToShortDateString()</small>
+            </div>
+            <p class="small mb-1 text-truncate" title="@fault.Description">@fault.Description</p>
+            <div class="mt-1">
+                <a href="#" class="btn btn-xs btn-info view-fault-btn" data-toggle="modal" data-fault-id="@fault.Id">
+                    <i class="fas fa-eye fa-xs"></i> View
+                </a>
+            </div>
+        </div>
+    }
+</div>

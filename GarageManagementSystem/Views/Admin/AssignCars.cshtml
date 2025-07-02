@@ -1,0 +1,487 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <link href="~/css/sb-admin-2.css" rel="stylesheet" />
+    
+}
+
+@{
+    ViewData["Title"] = "Dashboard";
+    @using GarageManagementSystem.ViewModels;
+    @using System.Linq;
+
+    var successMessage = TempData["SuccessMessage"] as string ?? string.Empty;
+    var errorMessage = TempData["ErrorMessage"] as string ?? string.Empty;
+    var dashboardModel = Model as DashboardViewModel;
+
+    // Collections
+    var dashboardUsers = dashboardModel?.GarageUsers ?? new List<DashboardUserViewModel>();
+    var cars = dashboardModel?.Cars ?? new List<CarViewModel>();
+    var customerCars = dashboardModel?.CustomerCars ?? new List<CustomerCarViewModel>();
+    var reports = dashboardModel?.MechanicReports ?? new List<MechanicReportViewModel>();
+
+    // Flags
+    var showCars = dashboardModel?.ShowCars ?? false;
+    var showMechanics = dashboardModel?.ShowMechanics ?? false;
+    var showUnassigned = dashboardModel?.ShowUnassignedCars ?? false;
+    var showCustomers = dashboardModel?.ShowCustomers ?? true;
+    var showReports = dashboardModel?.ShowReports ?? false;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        /* Enhanced table styling */
+        .table-bordered {
+            border: none;
+            margin-bottom: 0;
+        }
+
+            .table-bordered thead th {
+                background-color: #4e73df;
+                color: white;
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 0.8rem;
+                letter-spacing: 0.5px;
+                border: none;
+                padding: 1rem;
+                vertical-align: middle;
+            }
+
+            .table-bordered tbody td {
+                vertical-align: middle;
+                padding: 0.75rem 1rem;
+                border-top: 1px solid #eaecf4;
+                border-left: none;
+                border-right: none;
+                color: #5a5c69;
+                font-size: 0.9rem;
+            }
+
+            .table-bordered tbody tr {
+                transition: background-color 0.2s;
+            }
+
+                .table-bordered tbody tr:hover {
+                    background-color: rgba(78, 115, 223, 0.05);
+                }
+
+        /* Car details styling */
+        .car-make {
+            font-weight: 600;
+            color: #3a3b45;
+        }
+
+        .car-model {
+            display: inline-block;
+            background-color: #e8f0fe;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            color: #4e73df;
+        }
+
+        .car-year {
+            display: inline-block;
+            background-color: #f8f9fc;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #5a5c69;
+        }
+
+        /* Color display */
+        .color-display {
+            display: flex;
+            align-items: center;
+        }
+
+        .color-dot {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Person info styling */
+        .person-name {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+            .person-name i {
+                color: #4e73df;
+                margin-right: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+        .no-mechanic {
+            color: #858796;
+            font-style: italic;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .no-mechanic i {
+                margin-right: 0.5rem;
+                color: #dddfeb;
+            }
+
+        /* Form styling */
+        .mechanic-form {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .mechanic-form select {
+                flex: 1;
+                border-radius: 0.25rem;
+                border: 1px solid #d1d3e2;
+                padding: 0.375rem 0.75rem;
+                font-size: 0.85rem;
+                color: #6e707e;
+                background-color: #fff;
+                background-clip: padding-box;
+                transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            }
+
+                .mechanic-form select:focus {
+                    border-color: #bac8f3;
+                    outline: 0;
+                    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+                }
+
+            .mechanic-form button {
+                background-color: #4e73df;
+                border-color: #4e73df;
+                color: #fff;
+                border-radius: 0.25rem;
+                padding: 0.375rem 0.75rem;
+                font-size: 0.85rem;
+                font-weight: 400;
+                line-height: 1.5;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+                cursor: pointer;
+                transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            }
+
+                .mechanic-form button:hover {
+                    background-color: #2e59d9;
+                    border-color: #2653d4;
+                }
+
+        /* Card styling */
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .card-header h6 {
+                margin-bottom: 0;
+                font-size: 1rem;
+                color: #4e73df;
+            }
+
+        .card-body {
+            padding: 0;
+        }
+
+        /* Page header styling */
+        .page-header {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            padding-bottom: 1rem;
+        }
+
+        .page-title {
+            font-weight: 700;
+            color: #5a5c69;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-description {
+            color: #858796;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        /* Filter controls */
+        .filter-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-btn {
+            border: 1px solid #4e73df;
+            background-color: white;
+            color: #4e73df;
+            font-size: 0.8rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .filter-btn:hover, .filter-btn.active {
+                background-color: #4e73df;
+                color: white;
+            }
+
+        /* Empty state */
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+            color: #858796;
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+                color: #dddfeb;
+            }
+
+            .empty-state h5 {
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+            }
+
+        /* Success/Error messages */
+        .alert {
+            border-radius: 0.35rem;
+            border: 1px solid transparent;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            color: #0f6848;
+            background-color: #d2f4e8;
+            border-color: #b8edd8;
+        }
+
+        .alert-danger {
+            color: #78261f;
+            background-color: #fadbd8;
+            border-color: #f8c9c4;
+        }
+
+        /* Container adjustments */
+        .container-fluid {
+            padding: 1.5rem;
+        }
+
+        /* Add car button */
+        .add-car-btn {
+            display: inline-flex;
+            align-items: center;
+            background-color: #4e73df;
+            color: white;
+            border: none;
+            border-radius: 0.35rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: all 0.2s;
+        }
+
+            .add-car-btn:hover {
+                background-color: #2e59d9;
+                text-decoration: none;
+                color: white;
+            }
+
+            .add-car-btn i {
+                margin-right: 0.5rem;
+            }
+    </style>
+
+</head>
+<div id="content">
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h3 mb-0 text-gray-800">Garage Cars</h1>
+                <p class="mb-0 text-gray-600">
+                    Manage all vehicles in the garage management system
+                </p>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>
+                <strong>Success!</strong> @successMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <strong>Error!</strong> @errorMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        <!-- Filter Controls -->
+        <div class="filter-controls">
+            <a href="@Url.Action("AssignCars", "Admin", new { filter = "all" })" class="filter-btn @(ViewBag.Filter == "all" || string.IsNullOrEmpty(ViewBag.Filter) ? "active" : "")">
+                <i class="fas fa-car-alt mr-1"></i> All Cars
+            </a>
+            <a href="@Url.Action("AssignCars", "Admin", new { filter = "assigned" })" class="filter-btn @(ViewBag.Filter == "assigned" ? "active" : "")">
+                <i class="fas fa-user-check mr-1"></i> Assigned
+            </a>
+            <a href="@Url.Action("AssignCars", "Admin", new { filter = "unassigned" })" class="filter-btn @(ViewBag.Filter == "unassigned" ? "active" : "")">
+                <i class="fas fa-user-slash mr-1"></i> Unassigned
+            </a>
+        </div>
+
+        <!-- Car List Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-car mr-2"></i> Car List
+                </h6>
+                <div class="d-flex align-items-center">
+                    <span class="mr-2 text-xs">Total cars: <span class="font-weight-bold">@(Model.Cars?.Count ?? 0)</span></span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    @if (Model.Cars != null && Model.Cars.Count > 0)
+                    {
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-car-side mr-1"></i> Make</th>
+                                    <th><i class="fas fa-tag mr-1"></i> Model</th>
+                                    <th><i class="fas fa-calendar-alt mr-1"></i> Year</th>
+                                    <th><i class="fas fa-user mr-1"></i> Owner</th>
+                                    <th><i class="fas fa-user-cog mr-1"></i> Assigned Mechanic</th>
+                                    <th><i class="fas fa-tools mr-1"></i> Assign / Reassign</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var car in Model.Cars)
+                                {
+                                    <tr>
+                                        <td class="car-make">@car.Make</td>
+                                        <td><span class="car-model">@car.Model</span></td>
+                                        <td><span class="car-year">@car.Year</span></td>
+                                        <td>
+                                            <div class="person-name">
+                                                <i class="fas fa-user-circle"></i> @car.OwnerName
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(car.AssignedMechanicName))
+                                            {
+                                                <div class="person-name">
+                                                    <i class="fas fa-user-cog"></i> @car.AssignedMechanicName
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="no-mechanic">
+                                                    <i class="fas fa-exclamation-circle"></i> Not assigned
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <form asp-controller="Admin" asp-action="AssignCarToMechanic" method="post" class="mechanic-form">
+                                                <input type="hidden" name="carId" value="@car.Id" />
+                                                <select name="mechanicId" class="form-control" required>
+                                                    <option value="">-- Select Mechanic --</option>
+                                                    @foreach (var mechanic in Model.GarageUsers)
+                                                    {
+                                                        int mechId = int.Parse(mechanic.Id);
+                                                        var selectedAttribute = (car.AssignedMechanicId > 0 && car.AssignedMechanicId == mechId)
+                                                        ? "selected"
+                                                        : "";
+                                                        var mechanicName = string.IsNullOrEmpty(mechanic.FullName) ? "Unnamed Mechanic" : mechanic.FullName;
+                                                        var optionTag = $"<option value=\"{mechId}\" {selectedAttribute}>{mechanicName}</option>";
+
+                                                        @Html.Raw(optionTag)
+                                                    }
+                                                </select>
+                                                <button type="submit" class="btn btn-primary" title="Save Assignment">
+                                                    <i class="fas fa-save"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="fas fa-car-crash"></i>
+                            <h5>No Cars Available</h5>
+                            <p>There are no cars in the garage management system for this view.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Main Content -->
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add tooltips to buttons
+            $('.filter-btn').tooltip({
+                title: function() {
+                    return 'Show ' + $(this).text().trim() + ' only';
+                },
+                placement: 'top'
+            });
+
+            // Color dot fallback for invalid colors
+            $('.color-dot').each(function() {
+                $(this).on('error', function() {
+                    $(this).css('background-color', '#cccccc');
+                });
+            });
+        });
+    </script>
+}

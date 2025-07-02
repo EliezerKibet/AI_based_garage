@@ -1,0 +1,229 @@
+﻿@using GarageManagementSystem.ViewModels
+@model AppointmentViewModel
+@{
+    ViewData["Title"] = "Admin Appointment Details";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<head>
+    <title>@ViewData["Title"] - Customer Dashboard</title>
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+
+</head>
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Appointment Details</h1>
+        <a href="@Url.Action("Appointments", "Admin")" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Appointments
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Appointment Details -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Appointment Information</h6>
+                    <span class="badge @GetStatusBadgeClass(Model.Status)">
+                        @Model.Status
+                    </span>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="font-weight-bold mb-3">Car Details</h5>
+                            <p><strong>Make:</strong> @Model.Car.Make</p>
+                            <p><strong>Model:</strong> @Model.Car.Model</p>
+                            <p><strong>License Number:</strong> @Model.Car.LicenseNumber</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="font-weight-bold mb-3">Appointment Details</h5>
+                            <p><strong>Date:</strong> @Model.AppointmentDate.ToString("dddd, MMMM d, yyyy")</p>
+                            <p><strong>Time:</strong> @Model.AppointmentTime</p>
+                            <p><strong>Mechanic:</strong> @Model.MechanicName</p>
+                            @if (Model.CompletionDate.HasValue)
+                            {
+                                <p><strong>Completed on:</strong> @Model.CompletionDate.Value.ToString("MM/dd/yyyy HH:mm")</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5 class="font-weight-bold mb-3">Notes</h5>
+                        <div class="p-3 bg-gray-100 rounded">
+                            @if (string.IsNullOrEmpty(Model.Notes))
+                            {
+                                <p class="text-muted mb-0">No notes available for this appointment.</p>
+                            }
+                            else
+                            {
+                                <p class="mb-0">@Model.Notes</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Panel -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <!-- Card Header -->
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="d-grid gap-3">
+                        @if (Model.Status != "Cancelled" && Model.Status != "Completed")
+                        {
+                            <a href="@Url.Action("ProposeNewDate", "Admin", new { id = Model.Id })"
+                               class="btn btn-primary btn-block">
+                                <i class="fas fa-calendar-alt mr-2"></i> Propose New Date/Time
+                            </a>
+
+                            <button type="button" class="btn btn-danger btn-block"
+                                    data-toggle="modal" data-target="#cancelModal">
+                                <i class="fas fa-times-circle mr-2"></i> Cancel Appointment
+                            </button>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info text-center">
+                                No further actions available for this appointment.
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Contact Information -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Customer Information</h6>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.CustomerName) || !string.IsNullOrEmpty(Model.CustomerPhone) || !string.IsNullOrEmpty(Model.CustomerEmail))
+                    {
+                        <p><strong>Name:</strong> <span>@Model.CustomerName</span></p>
+                        <p><strong>Phone:</strong> <span>@Model.CustomerPhone</span></p>
+                        <p><strong>Email:</strong> <span>@Model.CustomerEmail</span></p>
+
+                        @if (!string.IsNullOrEmpty(Model.CustomerPhone))
+                        {
+                            <a href="tel:@Model.CustomerPhone" class="btn btn-info btn-sm">
+                                <i class="fas fa-phone mr-1"></i> Call Customer
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Customer information not available.</p>
+                    }
+                </div>
+            </div>
+
+
+            <!-- Contact Information -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Contact Information</h6>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.CustomerName) || !string.IsNullOrEmpty(Model.CustomerPhone) || !string.IsNullOrEmpty(Model.CustomerEmail))
+                    {
+                        <p><strong>Customer:</strong> <span id="customerName">@Model.MechanicName</span></p>
+                        <p><strong>Phone:</strong> <span id="customerPhone">@Model.MechanicPhone</span></p>
+                        <p><strong>Email:</strong> <span id="customerEmail">@Model.MechanicEmail</span></p>
+
+                        @if (!string.IsNullOrEmpty(Model.CustomerPhone))
+                        {
+                            <a href="tel:@Model.CustomerPhone" class="btn btn-info btn-sm">
+                                <i class="fas fa-phone mr-1"></i> Call Customer
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Customer information not available.</p>
+                    }
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Appointment Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="cancelModalLabel">Cancel Appointment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="CancelAppointment" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <p>Are you sure you want to cancel this appointment?</p>
+                    <p>Car: @Model.Car.Make @Model.Car.Model (@Model.Car.LicenseNumber)</p>
+                    <div class="form-group">
+                        <label for="reason">Cancellation Reason:</label>
+                        <textarea class="form-control" id="reason" name="reason" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Cancel Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Scheduled" => "badge-primary",
+            "Approved" => "badge-info",
+            "In Progress" => "badge-warning",
+            "Completed" => "badge-success",
+            "Cancelled" => "badge-danger",
+            _ => "badge-secondary"
+        };
+    }
+}
+
+
+
+

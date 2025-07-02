@@ -1,0 +1,674 @@
+﻿@model GarageManagementSystem.ViewModels.CarListViewModel
+@using System.Data
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Garage Cars";
+    var dataTable = Model.MyTable;
+}
+@section Styles {
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet" />
+    <style>
+        .sort-btn {
+            margin-right: 5px;
+        }
+
+            .sort-btn.active {
+                background-color: #4e73df;
+                color: white;
+            }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+
+        .fault-badge {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+            display: inline-block;
+        }
+
+            .fault-badge.pending {
+                background-color: #f6c23e;
+                color: #fff;
+            }
+
+            .fault-badge.resolved {
+                background-color: #1cc88a;
+                color: #fff;
+            }
+
+        .fault-count {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+            .fault-count.pending {
+                background-color: #f6c23e;
+                color: #fff;
+            }
+
+            .fault-count.resolved {
+                background-color: #1cc88a;
+                color: #fff;
+            }
+
+        .car-fault-item {
+            border-left: 3px solid;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background-color: #fff;
+            border-radius: 0.25rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+            .car-fault-item.pending {
+                border-left-color: #f6c23e;
+            }
+
+            .car-fault-item.resolved {
+                border-left-color: #1cc88a;
+            }
+
+        /* New styles for the faults dropdown */
+        .faults-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .faults-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #f8f9fc;
+            min-width: 300px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 0.35rem;
+            padding: 10px;
+            border: 1px solid #e3e6f0;
+        }
+
+            .faults-dropdown-content.show {
+                display: block;
+            }
+
+        .fault-list-item {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+            .fault-list-item:last-child {
+                border-bottom: none;
+            }
+
+            .fault-list-item.pending {
+                border-left: 3px solid #f6c23e;
+            }
+
+            .fault-list-item.resolved {
+                border-left: 3px solid #1cc88a;
+            }
+
+        .fault-dropdown-trigger {
+            cursor: pointer;
+        }
+
+        .faults-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #f8f9fc;
+            min-width: 600px; /* Increased width */
+            max-height: 500px; /* Set max height */
+            overflow-y: auto; /* Add scrolling */
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 10;
+            border-radius: 0.35rem;
+            padding: 0; /* Remove padding to maximize space */
+            border: 1px solid #e3e6f0;
+        }
+    </style>
+}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Custom styles for this template-->
+        <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    </head>
+    <div id="content">
+        <div class="container-fluid">
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <h1 class="h3 mb-2 text-gray-800">Garage Cars</h1>
+            </div>
+
+            <!-- Car Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Total Cars
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Cars.Count()</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-car fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Cars with Pending Faults
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.CarsWithPendingFaults</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Cars Without Issues
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.CarsWithoutFaults</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Total Faults
+                                    </div>
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col-auto">
+                                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">@Model.TotalFaults</div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="progress progress-sm mr-2">
+                                                <div class="progress-bar bg-warning" role="progressbar"
+                                                     style="width: @Model.PendingFaultsPercentage%"
+                                                     aria-valuenow="@Model.PendingFaultsPercentage"
+                                                     aria-valuemin="0" aria-valuemax="100"></div>
+                                                <div class="progress-bar bg-success" role="progressbar"
+                                                     style="width: @Model.ResolvedFaultsPercentage%"
+                                                     aria-valuenow="@Model.ResolvedFaultsPercentage"
+                                                     aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-1">
+                                        <div class="col-auto">
+                                            <small class="text-muted">
+                                                <span class="font-weight-bold text-warning">@Model.PendingFaults</span> Pending
+                                                <span class="font-weight-bold text-success ml-2">@Model.ResolvedFaults</span> Resolved
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-wrench fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Car List</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                             aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Filter Options:</div>
+                            <a class="dropdown-item" href="#" id="showAllCarsBtn"><i class="fas fa-car fa-sm fa-fw mr-2 text-gray-400"></i>Show All Cars</a>
+                            <a class="dropdown-item" href="#" id="showPendingFaultsBtn"><i class="fas fa-exclamation-triangle fa-sm fa-fw mr-2 text-gray-400"></i>Show Cars with Pending Faults</a>
+                            <a class="dropdown-item" href="#" id="showResolvedFaultsBtn"><i class="fas fa-check-circle fa-sm fa-fw mr-2 text-gray-400"></i>Show Cars with Resolved Faults</a>
+                            <a class="dropdown-item" href="#" id="showNoFaultsBtn"><i class="fas fa-check-double fa-sm fa-fw mr-2 text-gray-400"></i>Show Cars Without Faults</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        @if (dataTable != null && dataTable.Rows.Count > 0)
+                        {
+                            <table id="myTable" class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Car Make</th>
+                                        <th>Car Model</th>
+                                        <th>Year</th>
+                                        <th>Color</th>
+                                        <th>Owner</th>
+                                        <th>Assigned Mechanic</th>
+                                        <th>Faults</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (DataRow row in dataTable.Rows)
+                                    {
+                                        var carId = row["CarId"].ToString();
+                                        var pendingFaults = Model.CarFaults.Where(f => f.CarId.ToString() == carId && !f.ResolutionStatus).ToList();
+                                        var resolvedFaults = Model.CarFaults.Where(f => f.CarId.ToString() == carId && f.ResolutionStatus).ToList();
+                                        var hasPendingFaults = pendingFaults.Any();
+                                        var hasResolvedFaults = resolvedFaults.Any();
+                                        var hasFaults = hasPendingFaults || hasResolvedFaults;
+
+                                        <tr class="@(hasPendingFaults ? "table-warning" : "")">
+                                            <td>@row["Make"]</td>
+                                            <td>@row["Model"]</td>
+                                            <td>@row["Year"]</td>
+                                            <td>@row["Color"]</td>
+                                            <td>@row["Owner"]</td>
+                                            <td>@row["Assigned Mechanic"]</td>
+                                        <td>
+                                            @if (hasFaults)
+                                            {
+                                                <!-- Modified View Faults Button with dropdown functionality -->
+                                                <!-- Fullscreen View Faults Button -->
+                                                <!-- Fixed View Faults Button -->
+                                                <div class="faults-link">
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary fault-view-fullscreen"
+                                                       data-car-id="@carId"
+                                                       data-car-make="@row["Make"]"
+                                                       data-car-model="@row["Model"]">
+                                                        @if (hasPendingFaults)
+                                                        {
+                                                            <span class="fault-count pending" title="Pending Faults">@pendingFaults.Count</span>
+                                                        }
+                                                        @if (hasResolvedFaults)
+                                                        {
+                                                            <span class="fault-count resolved" title="Resolved Faults">@resolvedFaults.Count</span>
+                                                        }
+                                                        <i class="fas fa-eye ml-1"></i> View Faults
+                                                    </a>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-success">No Issues</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <p>No cars available.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Parts Modal -->
+    <div class="modal fade" id="viewPartsModal" tabindex="-1" role="dialog" aria-labelledby="viewPartsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewPartsModalLabel">Parts List</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="parts-list-container">
+                        <!-- Parts list will be loaded here via AJAX -->
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading parts information...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a href="#" class="btn btn-info" id="printPartsBtn">
+                        <i class="fas fa-print"></i> Print Parts List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Fault Modal -->
+    <div class="modal fade" id="viewFaultModal" tabindex="-1" role="dialog" aria-labelledby="viewFaultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewFaultModalLabel">Fault Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="viewFaultDetails">
+                    <!-- Content will be loaded dynamically -->
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading fault details...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Faults Modal -->
+    <div class="modal fade" id="allFaultsModal" tabindex="-1" role="dialog" aria-labelledby="allFaultsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="allFaultsModalLabel">All Faults</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Fault filters">
+                            <button type="button" class="btn btn-outline-primary active" data-fault-filter="all">All Faults</button>
+                            <button type="button" class="btn btn-outline-warning" data-fault-filter="pending">Pending Only</button>
+                            <button type="button" class="btn btn-outline-success" data-fault-filter="resolved">Resolved Only</button>
+                        </div>
+                    </div>
+
+                    <div id="all-faults-container">
+                        <!-- Content will be loaded dynamically -->
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading all faults...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-info" id="printAllFaultsBtn">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button type="button" class="btn btn-primary" id="exportAllFaultsBtn">
+                        <i class="fas fa-file-export"></i> Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>
+
+<script>
+
+        // Fixed JavaScript for Fullscreen View
+    $(document).ready(function() {
+        // Fullscreen Faults View
+        $(document).on('click', '.fault-view-fullscreen', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const carId = $(this).data('car-id');
+            const carMake = $(this).data('car-make') || '';
+            const carModel = $(this).data('car-model') || '';
+
+            // Create the fullscreen container if it doesn't exist
+            if ($('#faultsFullscreenContainer').length === 0) {
+                $('body').append('<div id="faultsFullscreenContainer" class="faults-fullscreen-container"><div class="faults-fullscreen-content"><div class="faults-fullscreen-header"><button type="button" class="close" id="closeFullscreenFaults"><span aria-hidden="true">&times;</span></button></div><div id="faultsFullscreenBody" class="faults-fullscreen-body"></div></div></div>');
+            }
+
+            // Make sure to remove any existing event handlers on the close button
+            $(document).off('click', '#closeFullscreenFaults');
+
+            // Set up the close button handler BEFORE showing the container
+            $(document).on('click', '#closeFullscreenFaults', function(closeEvent) {
+                closeEvent.preventDefault();
+                closeEvent.stopPropagation();
+                $('#faultsFullscreenContainer').fadeOut(200, function() {
+                    $('body').removeClass('faults-overlay-active');
+                });
+            });
+
+            // Show loading indicator
+            $('#faultsFullscreenBody').html('<div class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div><p class="mt-2">Loading fault details...</p></div>');
+
+            // Show the fullscreen container
+            $('#faultsFullscreenContainer').fadeIn(200);
+
+            // Add the overlay class to body to prevent scrolling
+            $('body').addClass('faults-overlay-active');
+
+            // Make AJAX request to get partial view
+            $.ajax({
+                url: '/Admin/GetCarFaultsDetails',
+                type: 'GET',
+                data: {
+                    carId: carId,
+                    carMake: carMake,
+                    carModel: carModel
+                },
+                success: function(response) {
+                    // Set the content
+                    $('#faultsFullscreenBody').html(response);
+
+                    // Re-initialize the event handlers
+                    initFaultActionsInFullscreen();
+                },
+                error: function(xhr, status, error) {
+                    $('#faultsFullscreenBody').html(`<div class="alert alert-danger m-4"><i class="fas fa-exclamation-circle mr-2"></i>Error loading faults: ${error}</div>`);
+                }
+            });
+        });
+
+        // Close on escape key
+        $(document).on('keyup', function(e) {
+            if (e.key === "Escape" && $('#faultsFullscreenContainer').is(':visible')) {
+                // Trigger the close button click
+                $('#closeFullscreenFaults').trigger('click');
+            }
+        });
+
+        // Initialize fault action buttons in fullscreen view
+        function initFaultActionsInFullscreen() {
+            // View fault details from fullscreen view
+            $('#faultsFullscreenBody .view-fault-btn').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation(); // Stop event propagation
+
+                // Get the fault ID
+                const faultId = $(this).data('fault-id');
+
+                // Store the fullscreen state to restore it after viewing details
+                $('#faultsFullscreenContainer').data('was-visible', true);
+
+                // Temporarily hide the fullscreen view
+                $('#faultsFullscreenContainer').hide();
+                $('body').removeClass('faults-overlay-active');
+
+                // Show the fault details modal
+                $('#viewFaultDetails').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div><p class="mt-2">Loading fault details...</p></div>');
+                $('#viewFaultModal').modal('show');
+
+                // Load fault details via AJAX
+                $.ajax({
+                    url: `/Admin/GetFaultDetails/${faultId}`,
+                    type: 'GET',
+                    success: function(response) {
+                        $('#viewFaultDetails').html(response);
+                    },
+                    error: function() {
+                        $('#viewFaultDetails').html('<div class="alert alert-danger">Error loading fault details. Please try again.</div>');
+                    }
+                });
+            });
+
+            // Set up the modal hidden event ONCE
+            $('#viewFaultModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                if ($('#faultsFullscreenContainer').data('was-visible')) {
+                    $('#faultsFullscreenContainer').show();
+                    $('body').addClass('faults-overlay-active');
+                    $('#faultsFullscreenContainer').data('was-visible', false);
+                }
+            });
+
+            // Resolve fault button in fullscreen view
+            $('#faultsFullscreenBody .resolve-fault-btn').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const faultId = $(this).data('fault-id');
+                const $button = $(this);
+                const carId = $('#faultsFullscreenBody .card').data('car-id') ||
+                              $('.fault-view-fullscreen').last().data('car-id');
+
+                if (confirm('Are you sure you want to mark this fault as resolved?')) {
+                    $button.html('<i class="fas fa-spinner fa-spin fa-xs"></i>').prop('disabled', true);
+
+                    $.ajax({
+                        url: `/Admin/ResolveFaultAjax`,
+                        type: 'POST',
+                        data: { id: faultId },
+                        success: function(response) {
+                            if (response.success) {
+                                // Reload the fullscreen content to reflect the changes
+                                refreshFullscreenContent(carId);
+
+                                // Update the main table
+                                updateMainTableRow(carId);
+                            } else {
+                                alert('Error: ' + response.message);
+                                $button.html('<i class="fas fa-check-circle fa-xs"></i>').prop('disabled', false);
+                            }
+                        },
+                        error: function() {
+                            alert('Error resolving fault. Please try again.');
+                            $button.html('<i class="fas fa-check-circle fa-xs"></i>').prop('disabled', false);
+                        }
+                    });
+                }
+            });
+        }
+
+        // Helper function to refresh fullscreen content
+        function refreshFullscreenContent(carId) {
+            const carMake = $(`.fault-view-fullscreen[data-car-id="${carId}"]`).data('car-make') || '';
+            const carModel = $(`.fault-view-fullscreen[data-car-id="${carId}"]`).data('car-model') || '';
+
+            // Show loading indicator
+            $('#faultsFullscreenBody').html('<div class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div><p class="mt-2">Refreshing fault details...</p></div>');
+
+            // Make AJAX request to get updated partial view
+            $.ajax({
+                url: '/Admin/GetCarFaultsDetails',
+                type: 'GET',
+                data: {
+                    carId: carId,
+                    carMake: carMake,
+                    carModel: carModel
+                },
+                success: function(response) {
+                    $('#faultsFullscreenBody').html(response);
+
+                    // Re-initialize the event handlers
+                    initFaultActionsInFullscreen();
+                },
+                error: function(xhr, status, error) {
+                    $('#faultsFullscreenBody').html(`<div class="alert alert-danger m-4"><i class="fas fa-exclamation-circle mr-2"></i>Error refreshing faults: ${error}</div>`);
+                }
+            });
+        }
+
+        // Helper function to update main table row
+        function updateMainTableRow(carId) {
+            // Check if the car still has pending faults
+            $.ajax({
+                url: '/Admin/CheckIfCarHasPendingFaults',
+                type: 'GET',
+                data: { carId: carId },
+                success: function(hasPendingFaults) {
+                    const $row = $(`.fault-view-fullscreen[data-car-id="${carId}"]`).closest('tr');
+
+                    if (hasPendingFaults === false) {
+                        // Remove warning class if no pending faults
+                        $row.removeClass('table-warning');
+
+                        // Update fault counts in the button
+                        $.ajax({
+                            url: '/Admin/GetCarFaultCounts',
+                            type: 'GET',
+                            data: { carId: carId },
+                            success: function(counts) {
+                                const $button = $(`.fault-view-fullscreen[data-car-id="${carId}"]`);
+
+                                // Update the counts
+                                $button.find('.fault-count.pending').remove();
+
+                                // If there are resolved faults, update the count
+                                if (counts.resolvedCount > 0) {
+                                    if ($button.find('.fault-count.resolved').length > 0) {
+                                        $button.find('.fault-count.resolved').text(counts.resolvedCount);
+                                    } else {
+                                        $button.prepend(`<span class="fault-count resolved" title="Resolved Faults">${counts.resolvedCount}</span>`);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    });
+    </script>
+
+<script>
+    let table = new DataTable('#myTable');
+</script>-->

@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "WPKgjkT5UmU=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Eliezer Kibet Rotich\\source\\repos\\Project\\GarageManagementSystem\\GarageManagementSystem.TestClient\\GarageManagementSystem.TestClient.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Eliezer Kibet Rotich\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

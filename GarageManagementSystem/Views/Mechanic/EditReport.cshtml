@@ -1,0 +1,748 @@
+﻿@using System.Globalization;
+@using GarageManagementSystem.ViewModels;
+@model GarageManagementSystem.Models.ViewModels.EditReportViewModel
+
+@{
+    ViewData["Title"] = "Edit Mechanic Report";
+    Layout = "~/Views/Shared/_LayoutMechanic.cshtml";
+
+    // Retrieve query string parameters via ViewContext.HttpContext
+    var searchTerm = ViewContext.HttpContext.Request.Query["searchTerm"].ToString();
+    var sortOrder = ViewContext.HttpContext.Request.Query["sortOrder"].ToString();
+}
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>@ViewData["Title"] - Edit Report</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+
+        .receipt-section {
+            border: 1px solid #e3e6f0;
+            border-radius: 0.35rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: #f8f9fc;
+        }
+
+        .receipt-header {
+            background-color: #4e73df;
+            color: white;
+            padding: 0.75rem 1rem;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            border-radius: 0.35rem 0.35rem 0 0;
+        }
+
+        .part-selection-area {
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 0.25rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .available-parts {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            background-color: white;
+        }
+
+        .part-option {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+            .part-option:hover {
+                background-color: #f5f5f5;
+            }
+
+            .part-option:last-child {
+                border-bottom: none;
+            }
+
+        .selected-part {
+            background-color: #e8f5e8 !important;
+            border-left: 3px solid #28a745;
+        }
+    </style>
+</head>
+
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h4 class="m-0 font-weight-bold text-primary">Edit Mechanic Report</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditReport" method="post">
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- Basic Service Information -->
+                        <div class="receipt-section">
+                            <div class="receipt-header">
+                                <h5 class="m-0"><i class="fas fa-car"></i> Service Information</h5>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Payment Mode -->
+                                    <div class="mb-3">
+                                        <label for="PaymentMode" class="form-label"><strong>Payment Mode</strong></label>
+                                        <select asp-for="PaymentMode" class="form-select">
+                                            <option value="Cash">Cash</option>
+                                            <option value="Card">Card</option>
+                                            <option value="Bank Transfer">Bank Transfer</option>
+                                            <option value="Cheque">Cheque</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Tax Rate -->
+                                    <div class="mb-3">
+                                        <label for="TaxRate" class="form-label"><strong>Tax Rate (%)</strong></label>
+                                        <input asp-for="TaxRate" class="form-control" type="number" step="0.01" min="0" max="100" onchange="calculateTotals()" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <!-- Customer Request -->
+                                    <div class="mb-3">
+                                        <label for="CustomerRequest" class="form-label"><strong>Customer Request</strong></label>
+                                        <textarea asp-for="CustomerRequest" class="form-control" rows="3" placeholder="What did the customer request?"></textarea>
+                                    </div>
+
+                                    <!-- Action Taken -->
+                                    <div class="mb-3">
+                                        <label for="ActionTaken" class="form-label"><strong>Action Taken</strong></label>
+                                        <textarea asp-for="ActionTaken" class="form-control" rows="3" placeholder="What actions were performed?"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Service Details -->
+                            <div class="mb-3">
+                                <label for="ServiceDetails" class="form-label"><strong>Service Details</strong></label>
+                                <textarea asp-for="ServiceDetails" class="form-control" rows="4" required></textarea>
+                            </div>
+
+                            <!-- Additional Notes -->
+                            <div class="mb-3">
+                                <label for="AdditionalNotes" class="form-label"><strong>Additional Notes</strong></label>
+                                <textarea asp-for="AdditionalNotes" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Parts Used Section -->
+                        <div class="receipt-section">
+                            <div class="receipt-header">
+                                <h5 class="m-0"><i class="fas fa-cogs"></i> Parts Information</h5>
+                            </div>
+
+                            <!-- Part Selection Area -->
+                            <div class="part-selection-area">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="operationCodeSelect" class="form-label"><strong>Select Operation Code</strong></label>
+                                        <select id="operationCodeSelect" class="form-select">
+                                            <option value="">-- Select Operation Code --</option>
+                                        </select>
+                                        <small class="text-muted">Choose an operation code to see available parts</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label"><strong>Available Parts</strong></label>
+                                        <div id="availablePartsList" class="available-parts">
+                                            <div class="text-muted text-center p-3">
+                                                Select an operation code to view available parts
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="parts-container">
+                                @for (var i = 0; i < Model.Parts.Count; i++)
+                                {
+                                    <div class="card mb-3 part-item">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Operation Code</label>
+                                                    <input name="Parts[@i].OperationCode" class="form-control" value="@Model.Parts[i].OperationCode" placeholder="e.g. FLRS10" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Part Number</label>
+                                                    <input name="Parts[@i].PartNumber" class="form-control" value="@Model.Parts[i].PartNumber" placeholder="e.g. 15601-P2A12" />
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Part Name</label>
+                                                    <input name="Parts[@i].PartName" class="form-control part-name" value="@Model.Parts[i].PartName" required />
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Part Description</label>
+                                                    <input name="Parts[@i].PartDescription" class="form-control" value="@Model.Parts[i].PartDescription" placeholder="Detailed description" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Part Price</label>
+                                                    <input name="Parts[@i].PartPrice" class="form-control part-price" type="number" step="0.01" value="@Model.Parts[i].PartPrice" onchange="calculateTotals()" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Quantity</label>
+                                                    <input name="Parts[@i].Quantity" class="form-control part-quantity" type="number" value="@Model.Parts[i].Quantity" onchange="calculateTotals()" />
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-end">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-part">
+                                                        <i class="fas fa-trash"></i> Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <button type="button" class="btn btn-success mb-3" onclick="addPartField()">
+                                <i class="fas fa-plus"></i> Add Custom Part
+                            </button>
+                        </div>
+
+                        <!-- Inspection Items Section -->
+                        <div class="receipt-section">
+                            <div class="receipt-header">
+                                <h5 class="m-0"><i class="fas fa-search"></i> Inspection Results</h5>
+                            </div>
+                            <div id="inspection-container">
+                                @if (Model.InspectionItems != null)
+                                {
+                                    @for (var i = 0; i < Model.InspectionItems.Count; i++)
+                                    {
+                                        <div class="card mb-3 inspection-item">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <label class="form-label">Item Name</label>
+                                                        <input name="InspectionItems[@i].ItemName" class="form-control" value="@Model.InspectionItems[i].ItemName" required />
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">Result</label>
+                                                        <input name="InspectionItems[@i].Result" class="form-control" value="@Model.InspectionItems[i].Result" required />
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">Status</label>
+                                                        @Html.DropDownList($"InspectionItems[{i}].Status",
+                                                                 new SelectList(new[] {
+                                                new { Value = "OK", Text = "OK" },
+                                                new { Value = "WARNING", Text = "WARNING" },
+                                                new { Value = "REPLACE", Text = "REPLACE" }
+                                                }, "Value", "Text", Model.InspectionItems[i].Status),
+                                                                 new { @class = "form-select", required = "required" })
+                                                    </div>
+                                                    <div class="col-md-2 d-flex align-items-end">
+                                                        <button type="button" class="btn btn-danger btn-sm remove-inspection">
+                                                            <i class="fas fa-trash"></i> Remove
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col-md-12">
+                                                        <label class="form-label">Recommendations</label>
+                                                        <textarea name="InspectionItems[@i].Recommendations" class="form-control" rows="2">@Model.InspectionItems[i].Recommendations</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <button type="button" id="add-inspection" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i> Add Inspection Item
+                            </button>
+                        </div>
+
+                        <!-- Next Service Information -->
+                        <div class="receipt-section">
+                            <div class="receipt-header">
+                                <h5 class="m-0"><i class="fas fa-calendar-alt"></i> Next Service Information</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="NextServiceKm" class="form-label"><strong>Next Service KM</strong></label>
+                                        <input asp-for="NextServiceKm" class="form-control" type="number" min="0" placeholder="e.g. 19300" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="NextServiceDate" class="form-label"><strong>Next Service Date</strong></label>
+                                        <input asp-for="NextServiceDate" class="form-control" type="date" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="ServiceFee" class="form-label"><strong>Service Fee</strong></label>
+                                        <input asp-for="ServiceFee" class="form-control" type="number" step="0.01" onchange="calculateTotals()" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Next Service Advice -->
+                            <div class="mb-3">
+                                <label for="NextServiceAdvice" class="form-label"><strong>Next Service Advice</strong></label>
+                                <textarea asp-for="NextServiceAdvice" class="form-control" rows="2" placeholder="Recommendations for next service..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Price Summary -->
+                        <div class="receipt-section">
+                            <div class="receipt-header">
+                                <h5 class="m-0"><i class="fas fa-calculator"></i> Price Summary</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 offset-md-6">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Parts Subtotal:</strong></td>
+                                            <td class="text-right" id="partsSubtotal">$0.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Labour Subtotal:</strong></td>
+                                            <td class="text-right" id="labourSubtotal">$0.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Service Fee:</strong></td>
+                                            <td class="text-right" id="serviceFeeDisplay">$0.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Tax Amount:</strong></td>
+                                            <td class="text-right" id="taxAmount">$0.00</td>
+                                        </tr>
+                                        <tr class="table-primary">
+                                            <td><strong>Total Amount:</strong></td>
+                                            <td class="text-right"><strong id="totalAmount">$0.00</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-save"></i> Save Report
+                            </button>
+                            <a asp-action="GetCarReports" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize counters
+        let partIndex = @Model.Parts.Count;
+        let labourIndex = @(Model.LabourItems?.Count ?? 0);
+        let inspectionIndex = @(Model.InspectionItems?.Count ?? 0);
+        let operationCodes = [];
+        let availableParts = [];
+
+        // Load operation codes on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            loadOperationCodes();
+            calculateTotals(); // Calculate totals for existing data
+        });
+
+        // Load operation codes from the server
+        async function loadOperationCodes() {
+            try {
+                const response = await fetch('/Mechanic/GetActiveOperationCodes');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                operationCodes = await response.json();
+                console.log('Loaded operation codes:', operationCodes);
+
+                const select = document.getElementById('operationCodeSelect');
+                select.innerHTML = '<option value="">-- Select Operation Code --</option>';
+
+                operationCodes.forEach(code => {
+                    const option = document.createElement('option');
+                    option.value = code.code;
+                    option.textContent = `${code.code} - ${code.name}`;
+                    option.title = code.description || '';
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading operation codes:', error);
+                alert('Failed to load operation codes. Please refresh the page.');
+            }
+        }
+
+        // Handle operation code selection
+        document.getElementById('operationCodeSelect').addEventListener('change', async function() {
+            const selectedCode = this.value;
+            const partsListContainer = document.getElementById('availablePartsList');
+
+            console.log('Selected operation code:', selectedCode);
+
+            if (!selectedCode) {
+                partsListContainer.innerHTML = '<div class="text-muted text-center p-3">Select an operation code to view available parts</div>';
+                return;
+            }
+
+            partsListContainer.innerHTML = '<div class="text-center p-3"><i class="fas fa-spinner fa-spin"></i> Loading parts...</div>';
+
+            try {
+                const url = `/Mechanic/GetPartsByOperationCode?operationCode=${encodeURIComponent(selectedCode)}`;
+                console.log('Fetching parts from URL:', url);
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                availableParts = await response.json();
+                console.log('Loaded parts:', availableParts);
+
+                if (availableParts.length === 0) {
+                    partsListContainer.innerHTML = '<div class="text-muted text-center p-3">No parts available for this operation code</div>';
+                    return;
+                }
+
+                let partsHtml = '';
+                availableParts.forEach(part => {
+                    partsHtml += `
+                        <div class="part-option" data-part-number="${part.partNumber}" data-part-name="${part.partName}" data-price="${part.price}">
+                            <div class="fw-bold">${part.partName}</div>
+                            <div class="small text-muted">Part #: ${part.partNumber} | Price: ${part.price.toFixed(2)}</div>
+                        </div>
+                    `;
+                });
+
+                partsListContainer.innerHTML = partsHtml;
+
+                // Add click handlers to part options
+                document.querySelectorAll('.part-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Remove previous selection
+                        document.querySelectorAll('.part-option').forEach(opt => opt.classList.remove('selected-part'));
+                        // Add selection to clicked part
+                        this.classList.add('selected-part');
+
+                        // Add part to form
+                        addPartFromSelection(
+                            selectedCode,
+                            this.dataset.partNumber,
+                            this.dataset.partName,
+                            parseFloat(this.dataset.price)
+                        );
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error loading parts:', error);
+                partsListContainer.innerHTML = '<div class="text-danger text-center p-3">Error loading parts. Please try again.</div>';
+                alert('Failed to load parts. Please check the console for details.');
+            }
+        });
+
+        // Add selected part to the form
+        function addPartFromSelection(operationCode, partNumber, partName, price) {
+            const partHtml = `
+                <div class="card mb-3 part-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Operation Code</label>
+                                <input name="Parts[${partIndex}].OperationCode" class="form-control" value="${operationCode}" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Part Number</label>
+                                <input name="Parts[${partIndex}].PartNumber" class="form-control" value="${partNumber}" readonly />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Part Name/Description</label>
+                                <input name="Parts[${partIndex}].PartName" class="form-control part-name" value="${partName}" required readonly />
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-3">
+                                <label class="form-label">Part Description</label>
+                                <input name="Parts[${partIndex}].PartDescription" class="form-control" placeholder="Detailed description" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Part Price (USD)</label>
+                                <input name="Parts[${partIndex}].PartPrice" class="form-control part-price" type="number" step="0.01" min="0" value="${price}" required onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Quantity</label>
+                                <input name="Parts[${partIndex}].Quantity" class="form-control part-quantity" type="number" min="1" value="1" required onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-part">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            document.getElementById("parts-container").insertAdjacentHTML("beforeend", partHtml);
+            partIndex++;
+            updatePartIndexes();
+            calculateTotals();
+
+            // Clear selection
+            document.querySelectorAll('.part-option').forEach(opt => opt.classList.remove('selected-part'));
+        }
+
+        function addPartField() {
+            var partHtml = `
+                <div class="card mb-3 part-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Operation Code</label>
+                                <input name="Parts[${partIndex}].OperationCode" class="form-control" placeholder="e.g. FLRS10" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Part Number</label>
+                                <input name="Parts[${partIndex}].PartNumber" class="form-control" placeholder="e.g. 15601-P2A12" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Part Name/Description</label>
+                                <input name="Parts[${partIndex}].PartName" class="form-control part-name" required placeholder="e.g. Oil Filter" />
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-3">
+                                <label class="form-label">Part Description</label>
+                                <input name="Parts[${partIndex}].PartDescription" class="form-control" placeholder="Detailed description" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Part Price</label>
+                                <input name="Parts[${partIndex}].PartPrice" class="form-control part-price" type="number" step="0.01" onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Quantity</label>
+                                <input name="Parts[${partIndex}].Quantity" class="form-control part-quantity" type="number" onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-part">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById("parts-container").insertAdjacentHTML("beforeend", partHtml);
+            partIndex++;
+            updatePartIndexes();
+        }
+
+        // Add labour function
+        document.getElementById("add-labour").addEventListener("click", function () {
+            var newLabour = `
+                <div class="card mb-3 labour-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Operation Code</label>
+                                <input name="LabourItems[${labourIndex}].OperationCode" class="form-control" required />
+                            </div>
+                            <div class="col-md-9">
+                                <label class="form-label">Description</label>
+                                <input name="LabourItems[${labourIndex}].Description" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Amount (w/o Tax)</label>
+                                <input name="LabourItems[${labourIndex}].TotalAmountWithoutTax" class="form-control labour-amount" type="number" step="0.01" onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tax Rate (%)</label>
+                                <input name="LabourItems[${labourIndex}].TaxRate" class="form-control labour-tax-rate" type="number" step="0.01" value="6.00" onchange="calculateTotals()" />
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-labour">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById("labour-container").insertAdjacentHTML("beforeend", newLabour);
+            labourIndex++;
+            updateLabourIndexes();
+        });
+
+        // Add inspection function
+        document.getElementById("add-inspection").addEventListener("click", function () {
+            var newInspection = `
+                <div class="card mb-3 inspection-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Item Name</label>
+                                <input name="InspectionItems[${inspectionIndex}].ItemName" class="form-control" required />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Result</label>
+                                <input name="InspectionItems[${inspectionIndex}].Result" class="form-control" required />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Status</label>
+                                <select name="InspectionItems[${inspectionIndex}].Status" class="form-select" required>
+                                    <option value="OK">OK</option>
+                                    <option value="WARNING">WARNING</option>
+                                    <option value="REPLACE">REPLACE</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-inspection">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <label class="form-label">Recommendations</label>
+                                <textarea name="InspectionItems[${inspectionIndex}].Recommendations" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById("inspection-container").insertAdjacentHTML("beforeend", newInspection);
+            inspectionIndex++;
+            updateInspectionIndexes();
+        });
+
+        // Remove event listeners
+        document.getElementById("parts-container").addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-part") || e.target.closest(".remove-part")) {
+                e.target.closest(".part-item").remove();
+                updatePartIndexes();
+                calculateTotals();
+            }
+        });
+
+        document.getElementById("labour-container").addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-labour") || e.target.closest(".remove-labour")) {
+                e.target.closest(".labour-item").remove();
+                updateLabourIndexes();
+                calculateTotals();
+            }
+        });
+
+        document.getElementById("inspection-container").addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-inspection") || e.target.closest(".remove-inspection")) {
+                e.target.closest(".inspection-item").remove();
+                updateInspectionIndexes();
+            }
+        });
+
+        // Update indexes functions
+        function updatePartIndexes() {
+            document.querySelectorAll(".part-item").forEach((item, index) => {
+                item.querySelector('[name*="OperationCode"]').setAttribute("name", `Parts[${index}].OperationCode`);
+                item.querySelector('[name*="PartNumber"]').setAttribute("name", `Parts[${index}].PartNumber`);
+                item.querySelector(".part-name").setAttribute("name", `Parts[${index}].PartName`);
+                if (item.querySelector('[name*="PartDescription"]')) {
+                    item.querySelector('[name*="PartDescription"]').setAttribute("name", `Parts[${index}].PartDescription`);
+                }
+                item.querySelector(".part-price").setAttribute("name", `Parts[${index}].PartPrice`);
+                item.querySelector(".part-quantity").setAttribute("name", `Parts[${index}].Quantity`);
+            });
+        }
+
+        function updateLabourIndexes() {
+            document.querySelectorAll(".labour-item").forEach((item, index) => {
+                item.querySelector('[name*="OperationCode"]').setAttribute("name", `LabourItems[${index}].OperationCode`);
+                item.querySelector('[name*="Description"]').setAttribute("name", `LabourItems[${index}].Description`);
+                item.querySelector(".labour-amount").setAttribute("name", `LabourItems[${index}].TotalAmountWithoutTax`);
+                item.querySelector(".labour-tax-rate").setAttribute("name", `LabourItems[${index}].TaxRate`);
+            });
+        }
+
+        function updateInspectionIndexes() {
+            document.querySelectorAll(".inspection-item").forEach((item, index) => {
+                item.querySelector('[name*="ItemName"]').setAttribute("name", `InspectionItems[${index}].ItemName`);
+                item.querySelector('[name*="Result"]').setAttribute("name", `InspectionItems[${index}].Result`);
+                item.querySelector('[name*="Status"]').setAttribute("name", `InspectionItems[${index}].Status`);
+                item.querySelector('[name*="Recommendations"]').setAttribute("name", `InspectionItems[${index}].Recommendations`);
+            });
+        }
+
+        // Calculate totals function
+        function calculateTotals() {
+            let partsTotal = 0;
+            let labourTotal = 0;
+
+            // Calculate parts total
+            document.querySelectorAll(".part-item").forEach(item => {
+                const price = parseFloat(item.querySelector(".part-price").value) || 0;
+                const quantity = parseFloat(item.querySelector(".part-quantity").value) || 0;
+                partsTotal += price * quantity;
+            });
+
+            // Calculate labour total
+            document.querySelectorAll(".labour-item").forEach(item => {
+                const amount = parseFloat(item.querySelector(".labour-amount").value) || 0;
+                const taxRate = parseFloat(item.querySelector(".labour-tax-rate").value) || 0;
+                const taxAmount = amount * (taxRate / 100);
+                labourTotal += amount + taxAmount;
+            });
+
+            const serviceFee = parseFloat(document.querySelector('[name="ServiceFee"]').value) || 0;
+            const taxRate = parseFloat(document.querySelector('[name="TaxRate"]').value) || 0;
+            const subtotal = partsTotal + labourTotal;
+            const taxAmount = subtotal * (taxRate / 100);
+            const total = subtotal + serviceFee + taxAmount;
+
+            // Update display
+            document.getElementById("partsSubtotal").textContent = `${partsTotal.toFixed(2)}`;
+            document.getElementById("labourSubtotal").textContent = `${labourTotal.toFixed(2)}`;
+            document.getElementById("serviceFeeDisplay").textContent = `${serviceFee.toFixed(2)}`;
+            document.getElementById("taxAmount").textContent = `${taxAmount.toFixed(2)}`;
+            document.getElementById("totalAmount").textContent = `${total.toFixed(2)}`;
+        }
+    </script>
+}
+
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="js/sb-admin-2.min.js"></script>

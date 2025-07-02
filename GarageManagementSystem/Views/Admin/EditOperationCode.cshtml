@@ -1,0 +1,342 @@
+﻿@using GarageManagementSystem.ViewModels
+@model OperationCodeViewModel
+
+@{
+    ViewData["Title"] = "Edit Operation Code";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper, #content-wrapper, #content {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <!-- Main Edit Form -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-edit me-2"></i>Edit Operation Code: <span class="badge bg-primary">@Model.Code</span>
+                        </h4>
+                        <a href="@Url.Action("PartsManagement")" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Parts Management
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Success/Error Messages -->
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Validation Summary -->
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Please correct the following errors:</h6>
+                            <ul class="mb-0">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <form asp-action="EditOperationCode" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input asp-for="Id" type="hidden" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Code" class="form-label">
+                                        <i class="fas fa-code me-1"></i>Operation Code <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Code" class="form-control @(Html.ViewData.ModelState["Code"]?.Errors.Count > 0 ? "is-invalid" : "")"
+                                           maxlength="20" style="text-transform: uppercase;" />
+                                    <span asp-validation-for="Code" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="IsActive" class="form-label">
+                                        <i class="fas fa-toggle-on me-1"></i>Status
+                                    </label>
+                                    <div class="form-check form-switch">
+                                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                        <label class="form-check-label" asp-for="IsActive">
+                                            Active (available for use)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">
+                                <i class="fas fa-tag me-1"></i>Operation Name <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Name" class="form-control @(Html.ViewData.ModelState["Name"]?.Errors.Count > 0 ? "is-invalid" : "")"
+                                   maxlength="100" />
+                            <span asp-validation-for="Name" class="invalid-feedback"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label">
+                                <i class="fas fa-align-left me-1"></i>Description
+                            </label>
+                            <textarea asp-for="Description" class="form-control @(Html.ViewData.ModelState["Description"]?.Errors.Count > 0 ? "is-invalid" : "")"
+                                      rows="4" maxlength="500"></textarea>
+                            <span asp-validation-for="Description" class="invalid-feedback"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted">
+                                <small><span class="text-danger">*</span> Required fields</small>
+                            </div>
+                            <div>
+                                <a href="@Url.Action("PartsManagement")" class="btn btn-secondary me-2">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>Update Operation Code
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Associated Parts Management -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-tools me-2"></i>Associated Parts (@Model.AssociatedParts.Count())
+                        </h5>
+                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addPartModal">
+                            <i class="fas fa-plus me-1"></i>Add Part
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.AssociatedParts.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Part Number</th>
+                                        <th>Part Name</th>
+                                        <th>Price (RM)</th>
+                                        <th>Default</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var part in Model.AssociatedParts)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-secondary">@part.PartNumber</span>
+                                            </td>
+                                            <td>@part.PartName</td>
+                                            <td class="text-success fw-bold">RM @part.Price.ToString("F2")</td>
+                                            <td>
+                                                @if (part.IsDefault)
+                                                {
+                                                    <span class="badge bg-primary">Default</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm">
+                                                    <form asp-action="TogglePartDefault" method="post" style="display: inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input name="operationCodeId" type="hidden" value="@Model.Id" />
+                                                        <input name="servicePartId" type="hidden" value="@part.Id" />
+                                                        <button type="submit" class="btn @(part.IsDefault ? "btn-outline-warning" : "btn-outline-primary")"
+                                                                title="@(part.IsDefault ? "Remove Default" : "Set as Default")">
+                                                            <i class="fas @(part.IsDefault ? "fa-star" : "fa-star-o")"></i>
+                                                        </button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-outline-danger"
+                                                            onclick="confirmRemovePart(@part.Id, '@part.PartName')"
+                                                            title="Remove Part">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No Parts Associated</h6>
+                            <p class="text-muted">Add parts that are commonly used with this operation.</p>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPartModal">
+                                <i class="fas fa-plus me-1"></i>Add First Part
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Part Modal -->
+<div class="modal fade" id="addPartModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Part to Operation Code</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="AssignPartToOperationCode" method="post">
+                @Html.AntiForgeryToken()
+                <input name="operationCodeId" type="hidden" value="@Model.Id" />
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="servicePartId" class="form-label">Select Service Part</label>
+                        <select name="servicePartId" class="form-select" required>
+                            <option value="">-- Select a Part --</option>
+                            @if (ViewBag.AvailableParts != null)
+                            {
+                                @foreach (var part in (List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)ViewBag.AvailableParts)
+                                {
+                                    <option value="@part.Value">@part.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-check">
+                        <input name="isDefault" class="form-check-input" type="checkbox" id="isDefaultCheck" />
+                        <label class="form-check-label" for="isDefaultCheck">
+                            Set as default part for this operation
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Add Part</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Part Confirmation Modal -->
+<div class="modal fade" id="removePartModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove Part</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove <strong id="removePartName"></strong> from this operation code?</p>
+                <p class="text-muted">This will not delete the part, only remove the association.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="removePartForm" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input name="operationCodeId" type="hidden" value="@Model.Id" />
+                    <input name="servicePartId" type="hidden" id="removePartId" />
+                    <button type="submit" class="btn btn-danger">Remove Part</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-uppercase code input
+            const codeInput = document.querySelector('input[name="Code"]');
+            if (codeInput) {
+                codeInput.addEventListener('input', function(e) {
+                    e.target.value = e.target.value.toUpperCase();
+                });
+            }
+
+            // Character count for description
+            const descriptionInput = document.querySelector('textarea[name="Description"]');
+            if (descriptionInput) {
+                const maxLength = 500;
+                const charCount = document.createElement('div');
+                charCount.className = 'form-text text-end';
+                charCount.style.fontSize = '0.75rem';
+                descriptionInput.parentNode.appendChild(charCount);
+
+                function updateCharCount() {
+                    const remaining = maxLength - descriptionInput.value.length;
+                    charCount.textContent = `${remaining} characters remaining`;
+                    charCount.className = remaining < 50 ? 'form-text text-end text-warning' : 'form-text text-end text-muted';
+                }
+
+                descriptionInput.addEventListener('input', updateCharCount);
+                updateCharCount();
+            }
+        });
+
+        function confirmRemovePart(partId, partName) {
+            document.getElementById('removePartName').textContent = partName;
+            document.getElementById('removePartId').value = partId;
+            document.getElementById('removePartForm').action = '@Url.Action("RemovePartFromOperationCode")';
+
+            const modal = new bootstrap.Modal(document.getElementById('removePartModal'));
+            modal.show();
+        }
+    </script>
+}

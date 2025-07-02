@@ -1,0 +1,85 @@
+﻿@model GarageManagementSystem.ViewModels.CarViewModel
+
+@{
+    ViewData["Title"] = "Add Car";
+    Layout = "~/Views/Shared/_LayoutCustomer.cshtml";
+}
+<head>
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+
+</head>
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Add Car</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="AddCar" method="post">
+                <div asp-validation-summary="All" class="alert alert-danger d-none"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Make" class="fw-bold"></label>
+                            <input asp-for="Make" class="form-control" placeholder="Enter car make" />
+                            <span asp-validation-for="Make" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Model" class="fw-bold"></label>
+                            <input asp-for="Model" class="form-control" placeholder="Enter car model" />
+                            <span asp-validation-for="Model" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Year" class="fw-bold"></label>
+                            <input asp-for="Year" type="number" class="form-control" placeholder="Enter year of manufacture" />
+                            <span asp-validation-for="Year" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Color" class="fw-bold"></label>
+                            <input asp-for="Color" class="form-control" placeholder="Enter car color" />
+                            <span asp-validation-for="Color" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="ChassisNumber" class="fw-bold"></label>
+                            <input asp-for="ChassisNumber" class="form-control" placeholder="Enter chassis number" />
+                            <span asp-validation-for="ChassisNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="FuelType" class="fw-bold"></label>
+                            <select asp-for="FuelType" class="form-control">
+                                <option value="">-- Select Fuel Type --</option>
+                                <option value="Petrol">Petrol</option>
+                                <option value="Hybrid">Hybrid</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="Electric">Electric</option>
+                            </select>
+                            <span asp-validation-for="FuelType" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="LicenseNumber" class="fw-bold"></label>
+                            <input asp-for="LicenseNumber" class="form-control" placeholder="Enter license number" required />
+                            <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary mt-3 px-4">Add Car</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
