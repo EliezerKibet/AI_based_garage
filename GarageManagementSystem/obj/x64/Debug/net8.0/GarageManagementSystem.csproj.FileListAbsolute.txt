@@ -1,9 +1,0 @@
-C:\Users\Eliezer Kibet Rotich\source\repos\Project\GarageManagementSystem\GarageManagementSystem\obj\x64\Debug\net8.0\GarageManagementSystem.csproj.AssemblyReference.cache
-C:\Users\Eliezer Kibet Rotich\source\repos\Project\GarageManagementSystem\GarageManagementSystem\obj\x64\Debug\net8.0\GarageManagementSystem.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Eliezer Kibet Rotich\source\repos\Project\GarageManagementSystem\GarageManagementSystem\obj\x64\Debug\net8.0\GarageManagementSystem.AssemblyInfoInputs.cache
-C:\Users\Eliezer Kibet Rotich\source\repos\Project\GarageManagementSystem\GarageManagementSystem\obj\x64\Debug\net8.0\GarageManagementSystem.AssemblyInfo.cs
-C:\Users\Eliezer Kibet Rotich\source\repos\Project\GarageManagementSystem\GarageManagementSystem\obj\x64\Debug\net8.0\GarageManagementSystem.csproj.CoreCompileInputs.cache
-C:\Users\Eliezer Kibet Rotich\source\repos\Project\GarageManagementSystem\GarageManagementSystem\obj\x64\Debug\net8.0\GarageManagementSystem.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Eliezer Kibet Rotich\source\repos\Project\GarageManagementSystem\GarageManagementSystem\obj\x64\Debug\net8.0\GarageManagementSystem.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Eliezer Kibet Rotich\source\repos\Project\GarageManagementSystem\GarageManagementSystem\obj\x64\Debug\net8.0\GarageManagementSystem.RazorAssemblyInfo.cache
-C:\Users\Eliezer Kibet Rotich\source\repos\Project\GarageManagementSystem\GarageManagementSystem\obj\x64\Debug\net8.0\GarageManagementSystem.RazorAssemblyInfo.cs
